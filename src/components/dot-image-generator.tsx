@@ -33,6 +33,19 @@ export function DotImageGenerator({ className }: Props) {
 		borderRadius: 0,
 	})
 
+	const actualRows = config.lockRatio ? config.cols : config.rows
+	const elementSize = 30
+	const totalWidth = config.cols * elementSize + (config.cols - 1) * config.gap
+	const totalHeight = actualRows * elementSize + (actualRows - 1) * config.gap
+	const maxBorderRadius = Math.min(totalWidth, totalHeight) / 2
+
+	React.useEffect(() => {
+		setConfig((prev) => {
+			if (prev.borderRadius <= maxBorderRadius) return prev
+			return { ...prev, borderRadius: maxBorderRadius }
+		})
+	}, [maxBorderRadius])
+
 	React.useEffect(() => {
 		console.log(files)
 
@@ -75,7 +88,7 @@ export function DotImageGenerator({ className }: Props) {
 									id="cols"
 									type="number"
 									min="1"
-									max="50"
+									max="1000"
 									value={config.cols}
 									onChange={(e) => updateConfig("cols", parseInt(e.target.value) || 1)}
 								/>
@@ -87,7 +100,7 @@ export function DotImageGenerator({ className }: Props) {
 									id="rows"
 									type="number"
 									min="1"
-									max="50"
+									max="1000"
 									value={config.rows}
 									onChange={(e) => updateConfig("rows", parseInt(e.target.value) || 1)}
 								/>
@@ -112,7 +125,7 @@ export function DotImageGenerator({ className }: Props) {
 									id="circleRadius"
 									type="number"
 									min="1"
-									max="50"
+									max="1000"
 									value={config.circleRadius}
 									onChange={(e) => updateConfig("circleRadius", parseInt(e.target.value) || 1)}
 								/>
@@ -124,7 +137,7 @@ export function DotImageGenerator({ className }: Props) {
 									id="gap"
 									type="number"
 									min="0"
-									max="50"
+									max="1000"
 									value={config.gap}
 									onChange={(e) => updateConfig("gap", parseInt(e.target.value) || 0)}
 								/>
@@ -136,7 +149,7 @@ export function DotImageGenerator({ className }: Props) {
 									id="borderRadius"
 									type="number"
 									min="0"
-									max="100"
+									max={maxBorderRadius}
 									value={config.borderRadius}
 									onChange={(e) => updateConfig("borderRadius", parseInt(e.target.value) || 0)}
 								/>
@@ -144,15 +157,7 @@ export function DotImageGenerator({ className }: Props) {
 						</div>
 					</div>
 
-					<Preview
-						src={imageUrls[0]}
-						cols={config.cols}
-						rows={config.rows}
-						lockRatio={config.lockRatio}
-						circleRadius={config.circleRadius}
-						gap={config.gap}
-						borderRadius={config.borderRadius}
-					/>
+					<Preview src={imageUrls[0]} config={config} />
 				</>
 			)}
 		</div>

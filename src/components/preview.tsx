@@ -1,11 +1,15 @@
+interface PreviewConfig {
+	cols: number
+	rows: number
+	lockRatio: boolean
+	circleRadius: number
+	gap: number
+	borderRadius: number // CSS px
+}
+
 interface PreviewProps {
 	src: string
-	cols?: number
-	rows?: number
-	lockRatio?: boolean
-	circleRadius?: number
-	gap?: number
-	borderRadius?: number
+	config: PreviewConfig
 }
 
 function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: number, H: number, r: number) {
@@ -19,11 +23,9 @@ function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: 
 	]
 
 	return corners.every(({ x, y }) => {
-		// straight edges
 		if (x >= r && x <= W - r) return true
 		if (y >= r && y <= H - r) return true
 
-		// corner circles
 		const cx = x < r ? r : W - r
 		const cy = y < r ? r : H - r
 
@@ -34,15 +36,9 @@ function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: 
 	})
 }
 
-export function Preview({
-	src,
-	cols = 10,
-	rows = 10,
-	lockRatio = true,
-	circleRadius = 15,
-	gap = 10,
-	borderRadius = 0,
-}: PreviewProps) {
+export function Preview({ src, config }: PreviewProps) {
+	const { cols, rows, lockRatio, circleRadius, gap, borderRadius } = config
+
 	const actualRows = lockRatio ? cols : rows
 
 	const elementSize = 30
@@ -50,6 +46,17 @@ export function Preview({
 
 	const totalWidth = cols * elementSize + (cols - 1) * gap
 	const totalHeight = actualRows * elementSize + (actualRows - 1) * gap
+
+	// rendered size (px)
+	const RENDER_HEIGHT = 400
+	const renderWidth = lockRatio ? RENDER_HEIGHT : (totalWidth / totalHeight) * RENDER_HEIGHT
+
+	// px → viewBox scale
+	const scaleX = totalWidth / renderWidth
+	const scaleY = totalHeight / RENDER_HEIGHT
+
+	// border radius in viewBox units
+	const borderRadiusVB = Math.min(borderRadius * Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
 
 	const visibleCells: Array<{ row: number; col: number }> = []
 
@@ -59,8 +66,8 @@ export function Preview({
 			const y = row * spacing
 
 			if (
-				borderRadius === 0 ||
-				isRectInsideRoundedRect(x, y, elementSize, elementSize, totalWidth, totalHeight, borderRadius)
+				borderRadiusVB === 0 ||
+				isRectInsideRoundedRect(x, y, elementSize, elementSize, totalWidth, totalHeight, borderRadiusVB)
 			) {
 				visibleCells.push({ row, col })
 			}
@@ -68,15 +75,10 @@ export function Preview({
 	}
 
 	return (
-		<div
-			className="overflow-hidden border"
-			style={{
-				borderRadius,
-			}}
-		>
+		<div className="overflow-hidden" style={{ borderRadius }}>
 			<svg
 				width="100%"
-				height={lockRatio ? 400 : (actualRows / cols) * 400}
+				height={lockRatio ? RENDER_HEIGHT : (actualRows / cols) * RENDER_HEIGHT}
 				viewBox={`0 0 ${totalWidth} ${totalHeight}`}
 			>
 				<defs>
