@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Download } from "lucide-react"
 
-interface DownloadButtonProps {
+interface Props extends React.ComponentProps<typeof Button> {
 	onDownload: (format: "png" | "svg") => Promise<void>
 	disabled?: boolean
 }
 
-export function DownloadButton({ onDownload, disabled = false }: DownloadButtonProps) {
+export function DownloadButton({ onDownload, disabled = false, ...props }: Props) {
 	const handleDownload = async (format: "png" | "svg") => {
 		try {
 			await onDownload(format)
@@ -19,14 +19,14 @@ export function DownloadButton({ onDownload, disabled = false }: DownloadButtonP
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="default" disabled={disabled}>
-					<Download className="h-4 w-4" />
+				<Button variant="default" disabled={disabled} {...props}>
+					<Download className="size-4" />
 					Download
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent side="top">
-				<DropdownMenuItem onClick={() => handleDownload("svg")}>Download as SVG</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => handleDownload("png")}>Download as PNG</DropdownMenuItem>
+			<DropdownMenuContent>
+				<DropdownMenuItem onClick={() => handleDownload("svg")}>Save as SVG</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => handleDownload("png")}>Save as PNG</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

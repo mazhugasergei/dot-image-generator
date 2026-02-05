@@ -7,6 +7,8 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 	circleRadius: 1,
 	gap: 5,
 	borderRadius: 0,
+	brightness: 100,
+	saturation: 100,
 }
 
 export const ELEMENT_SIZE = 30
@@ -17,4 +19,6 @@ export const MAX_CONFIG_VALUES: Partial<PreviewConfig> = {
 	circleRadius: 1,
 	gap: 50,
 	borderRadius: 100,
+	brightness: 200,
+	saturation: 200,
 } as const

@@ -67,7 +67,7 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 						<div className="flex items-center justify-center rounded-full border p-2.5">
 							<Upload className="text-muted-foreground size-6" />
 						</div>
-						<p className="text-sm font-medium">Drag & drop files here</p>
+						<p className="text-sm font-medium">Drag & drop an image here</p>
 						<p className="text-muted-foreground text-xs">Or click to browse</p>
 					</div>
 					<FileUploadTrigger asChild>

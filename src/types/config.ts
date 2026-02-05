@@ -5,4 +5,6 @@ export interface PreviewConfig {
 	circleRadius: number
 	gap: number
 	borderRadius: number
+	brightness: number
+	saturation: number
 }

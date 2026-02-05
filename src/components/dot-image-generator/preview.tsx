@@ -7,12 +7,37 @@ interface PreviewConfig {
 	circleRadius: number
 	gap: number
 	borderRadius: number // CSS px
+	brightness: number
+	saturation: number
 }
 
 interface PreviewProps {
 	src: string
 	config: PreviewConfig
 	circleRadius: number
+}
+
+function applyColorAdjustments(
+	r: number,
+	g: number,
+	b: number,
+	brightness: number,
+	saturation: number
+): [number, number, number] {
+	// Apply brightness (0-200%)
+	const brightnessFactor = brightness / 100
+	r = Math.min(255, Math.max(0, r * brightnessFactor))
+	g = Math.min(255, Math.max(0, g * brightnessFactor))
+	b = Math.min(255, Math.max(0, b * brightnessFactor))
+
+	// Apply saturation (0-200%)
+	const gray = 0.2989 * r + 0.587 * g + 0.114 * b
+	const saturationFactor = saturation / 100
+	r = Math.min(255, Math.max(0, gray + saturationFactor * (r - gray)))
+	g = Math.min(255, Math.max(0, gray + saturationFactor * (g - gray)))
+	b = Math.min(255, Math.max(0, gray + saturationFactor * (b - gray)))
+
+	return [Math.round(r), Math.round(g), Math.round(b)]
 }
 
 function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: number, H: number, r: number) {
@@ -41,7 +66,7 @@ function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: 
 }
 
 export function Preview({ src, config, circleRadius }: PreviewProps) {
-	const { cols, rows, gap, borderRadius } = config
+	const { cols, rows, gap, borderRadius, brightness, saturation } = config
 
 	const elementSize = 30
 	const spacing = elementSize + gap
@@ -105,14 +130,21 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 						b += data[i + 2]
 					}
 					const count = data.length / 4
-					rowColors.push(`rgb(${Math.round(r / count)},${Math.round(g / count)},${Math.round(b / count)})`)
+					const avgR = r / count
+					const avgG = g / count
+					const avgB = b / count
+
+					// Apply brightness and saturation adjustments
+					const [adjustedR, adjustedG, adjustedB] = applyColorAdjustments(avgR, avgG, avgB, brightness, saturation)
+
+					rowColors.push(`rgb(${adjustedR},${adjustedG},${adjustedB})`)
 				}
 				cellColors.push(rowColors)
 			}
 
 			setColors(cellColors)
 		}
-	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight])
+	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight, brightness, saturation])
 
 	return (
 		<div className="w-full overflow-hidden" data-preview-container>

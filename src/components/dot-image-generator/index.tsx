@@ -109,21 +109,21 @@ export function DotImageGenerator({ className }: Props) {
 	}
 
 	return (
-		<div className={cn("flex w-full max-w-md flex-col items-center gap-6", className)}>
+		<div className={cn("flex w-full max-w-md flex-col items-center gap-10", className)}>
 			<FileUpload files={files} onFilesChange={setFiles} />
 
 			{files.length > 0 && (
 				<>
+					<Preview src={imageUrls[0]} config={config} circleRadius={circleRadius} />
+
+					<DownloadButton onDownload={handleDownload} disabled={!imageUrls[0]} className="w-full" />
+
 					<ConfigControls
 						config={config}
 						updateConfig={updateConfig}
 						maxBorderRadius={maxBorderRadius}
 						onReset={handleReset}
 					/>
-
-					<Preview src={imageUrls[0]} config={config} circleRadius={circleRadius} />
-
-					<DownloadButton onDownload={handleDownload} disabled={!imageUrls[0]} />
 				</>
 			)}
 		</div>
