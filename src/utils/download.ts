@@ -3,7 +3,7 @@ function getPreviewSVG(): SVGElement {
 	const svgElement = previewContainer?.querySelector("svg") as SVGElement
 
 	if (!svgElement) {
-		throw new Error("Preview SVG not found")
+		throw new Error("preview svg not found")
 	}
 
 	return svgElement
@@ -30,7 +30,7 @@ export async function downloadPNG(
 	const svgData = new XMLSerializer().serializeToString(svgElement)
 	const img = new Image()
 
-	// Get SVG dimensions from viewBox or attributes
+	// get svg dimensions from viewBox or attributes
 	const viewBox = svgElement.getAttribute("viewBox")
 	let vbWidth = 0,
 		vbHeight = 0
@@ -43,7 +43,7 @@ export async function downloadPNG(
 		vbHeight = parseFloat(svgElement.getAttribute("height") || "0")
 	}
 
-	// Calculate target dimensions while preserving aspect ratio
+	// calculate target dimensions while preserving aspect ratio
 	let finalWidth = targetWidth
 	let finalHeight = targetHeight
 
@@ -59,7 +59,7 @@ export async function downloadPNG(
 			canvas.width = finalWidth
 			canvas.height = finalHeight
 			const ctx = canvas.getContext("2d")
-			if (!ctx) return reject(new Error("Failed to get canvas context"))
+			if (!ctx) return reject(new Error("failed to get canvas context"))
 
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
@@ -73,12 +73,12 @@ export async function downloadPNG(
 					URL.revokeObjectURL(url)
 					resolve()
 				} else {
-					reject(new Error("Failed to create PNG blob"))
+					reject(new Error("failed to create png blob"))
 				}
 			}, "image/png")
 		}
 
-		img.onerror = () => reject(new Error("Failed to load SVG for PNG conversion"))
+		img.onerror = () => reject(new Error("failed to load svg for png conversion"))
 
 		const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" })
 		img.src = URL.createObjectURL(svgBlob)

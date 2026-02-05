@@ -26,17 +26,16 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 	return (
 		<div className="w-full space-y-6">
 			<div className="flex items-center justify-between">
-				<h3 className="text-lg font-medium">Configuration</h3>
+				<h3 className="text-lg font-medium">configuration</h3>
 				<Button variant="outline" size="sm" onClick={handleReset}>
 					Reset
 				</Button>
 			</div>
-
-			{/* Layout Controls */}
+			// layout controls
 			<div className="space-y-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Layout</h4>
+				<h4 className="text-muted-foreground text-sm font-medium">layout</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-					{/* Columns */}
+					{/* columns */}
 					<div className="space-y-2">
 						<Label htmlFor="cols">Columns</Label>
 						<div className="flex items-center gap-2">
@@ -63,7 +62,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						</div>
 					</div>
 
-					{/* Rows */}
+					{/* rows */}
 					<div className="space-y-2">
 						<Label htmlFor="rows">Rows</Label>
 						<div className="flex items-center gap-2">
@@ -90,7 +89,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						</div>
 					</div>
 
-					{/* Lock Ratio */}
+					{/* lock ratio */}
 					<div className="space-y-2">
 						<Label htmlFor="lockRatio">Lock Ratio</Label>
 						<Button
@@ -105,12 +104,11 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					</div>
 				</div>
 			</div>
-
-			{/* Style Controls */}
+			{/* style controls */}
 			<div className="space-y-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Style</h4>
+				<h4 className="text-muted-foreground text-sm font-medium">style</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-					{/* Circle Radius */}
+					{/* circle radius */}
 					<div className="space-y-2">
 						<Label htmlFor="circleRadius">Circle Radius</Label>
 						<div className="flex items-center gap-2">
@@ -126,7 +124,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						</div>
 					</div>
 
-					{/* Gap */}
+					{/* gap */}
 					<div className="space-y-2">
 						<Label htmlFor="gap">Gap</Label>
 						<div className="flex items-center gap-2">
@@ -142,7 +140,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						</div>
 					</div>
 
-					{/* Border Radius */}
+					{/* border radius */}
 					<div className="space-y-2">
 						<Label htmlFor="borderRadius">Border Radius</Label>
 						<div className="flex items-center gap-2">
@@ -159,12 +157,11 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					</div>
 				</div>
 			</div>
-
-			{/* Color Controls */}
+			{/* color controls */}
 			<div className="space-y-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Colors</h4>
+				<h4 className="text-muted-foreground text-sm font-medium">colors</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-					{/* Brightness */}
+					{/* brightness */}
 					<div className="space-y-2">
 						<Label htmlFor="brightness">Brightness</Label>
 						<div className="flex items-center gap-2">
@@ -180,7 +177,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						</div>
 					</div>
 
-					{/* Saturation */}
+					{/* saturation */}
 					<div className="space-y-2">
 						<Label htmlFor="saturation">Saturation</Label>
 						<div className="flex items-center gap-2">

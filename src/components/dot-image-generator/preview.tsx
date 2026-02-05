@@ -6,7 +6,7 @@ interface PreviewConfig {
 	lockRatio: boolean
 	circleRadius: number
 	gap: number
-	borderRadius: number // CSS px
+	borderRadius: number // css px
 	brightness: number
 	saturation: number
 }
@@ -24,13 +24,13 @@ function applyColorAdjustments(
 	brightness: number,
 	saturation: number
 ): [number, number, number] {
-	// Apply brightness (0-200%)
+	// apply brightness (0-200%)
 	const brightnessFactor = brightness / 100
 	r = Math.min(255, Math.max(0, r * brightnessFactor))
 	g = Math.min(255, Math.max(0, g * brightnessFactor))
 	b = Math.min(255, Math.max(0, b * brightnessFactor))
 
-	// Apply saturation (0-200%)
+	// apply saturation (0-200%)
 	const gray = 0.2989 * r + 0.587 * g + 0.114 * b
 	const saturationFactor = saturation / 100
 	r = Math.min(255, Math.max(0, gray + saturationFactor * (r - gray)))
@@ -98,7 +98,7 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 		}
 	}
 
-	// Load image and compute average color per cell
+	// load image and compute average color per cell
 	const [colors, setColors] = React.useState<string[][]>([])
 
 	React.useEffect(() => {
@@ -134,7 +134,7 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 					const avgG = g / count
 					const avgB = b / count
 
-					// Apply brightness and saturation adjustments
+					// apply brightness and saturation adjustments
 					const [adjustedR, adjustedG, adjustedB] = applyColorAdjustments(avgR, avgG, avgB, brightness, saturation)
 
 					rowColors.push(`rgb(${adjustedR},${adjustedG},${adjustedB})`)

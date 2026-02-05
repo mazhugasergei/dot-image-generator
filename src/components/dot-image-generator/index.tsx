@@ -21,18 +21,18 @@ export function DotImageGenerator({ className }: Props) {
 	const [config, setConfig] = React.useState<PreviewConfig>(DEFAULT_CONFIG)
 	const [ratio, setRatio] = React.useState(config.cols / config.rows)
 
-	// Maximum border radius for the overall image
+	// maximum border radius for the overall image
 	const totalWidth = previewDimensions?.width || 0
 	const totalHeight = previewDimensions?.height || 0
 	const maxBorderRadius = Math.ceil(Math.min(totalWidth, totalHeight) / 2)
 
-	// Calculate dynamic circle radius based on available space and user setting
-	const cellWidth = ELEMENT_SIZE // Fixed cell size in Preview component
-	const cellHeight = ELEMENT_SIZE // Fixed cell size in Preview component
+	// calculate dynamic circle radius based on available space and user setting
+	const cellWidth = ELEMENT_SIZE // fixed cell size in preview component
+	const cellHeight = ELEMENT_SIZE // fixed cell size in preview component
 	const maxCircleRadius = Math.floor(Math.min(cellWidth, cellHeight) / 2)
 	const circleRadius = Math.floor(maxCircleRadius * config.circleRadius)
 
-	// Ensure border radius never exceeds max
+	// ensure border radius never exceeds max
 	React.useEffect(() => {
 		setConfig((prev) => {
 			if (prev.borderRadius <= maxBorderRadius) return prev
@@ -40,7 +40,7 @@ export function DotImageGenerator({ className }: Props) {
 		})
 	}, [maxBorderRadius])
 
-	// Measure preview element dimensions
+	// measure preview element dimensions
 	React.useEffect(() => {
 		const measurePreview = () => {
 			const previewElement = document.querySelector("[data-preview-container]") as HTMLElement
@@ -50,10 +50,10 @@ export function DotImageGenerator({ className }: Props) {
 			}
 		}
 
-		// Initial measurement
+		// initial measurement
 		measurePreview()
 
-		// Set up ResizeObserver to track dimension changes
+		// set up resizeobserver to track dimension changes
 		let resizeObserver: ResizeObserver
 		const previewElement = document.querySelector("[data-preview-container]") as HTMLElement
 		if (previewElement) {
@@ -66,21 +66,21 @@ export function DotImageGenerator({ className }: Props) {
 				resizeObserver.disconnect()
 			}
 		}
-	}, [files])
+	}, [files]) // re-run when files change to ensure preview element exists
 
 	React.useEffect(() => {
 		if (files.length === 0) return
 
-		// Create URLs for image previews
+		// create urls for image previews
 		const urls = files.map((file) => URL.createObjectURL(file))
 		setImageUrls(urls)
 
-		// Cleanup object URLs
+		// cleanup object urls
 		return () => urls.forEach((url) => URL.revokeObjectURL(url))
 	}, [files])
 
 	React.useEffect(() => {
-		// Update ratio only when unlocked
+		// update ratio only when unlocked
 		if (!config.lockRatio && config.rows > 0) {
 			setRatio(config.cols / config.rows)
 		}
