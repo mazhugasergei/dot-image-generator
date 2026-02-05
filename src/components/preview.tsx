@@ -12,6 +12,7 @@ interface PreviewProps {
 	config: PreviewConfig
 }
 
+// Checks if a rectangle fits fully inside a rounded rectangle
 function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: number, H: number, r: number) {
 	r = Math.min(r, W / 2, H / 2)
 
@@ -23,12 +24,13 @@ function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: 
 	]
 
 	return corners.every(({ x, y }) => {
+		// inside straight edges
 		if (x >= r && x <= W - r) return true
 		if (y >= r && y <= H - r) return true
 
+		// inside corner circles
 		const cx = x < r ? r : W - r
 		const cy = y < r ? r : H - r
-
 		const dx = x - cx
 		const dy = y - cy
 
@@ -37,34 +39,31 @@ function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: 
 }
 
 export function Preview({ src, config }: PreviewProps) {
-	const { cols, rows, lockRatio, circleRadius, gap, borderRadius } = config
-
-	const actualRows = lockRatio ? cols : rows
+	const { cols, rows, circleRadius, gap, borderRadius } = config
 
 	const elementSize = 30
 	const spacing = elementSize + gap
 
 	const totalWidth = cols * elementSize + (cols - 1) * gap
-	const totalHeight = actualRows * elementSize + (actualRows - 1) * gap
+	const totalHeight = rows * elementSize + (rows - 1) * gap
 
-	// rendered size (px)
+	// rendered size in px
 	const RENDER_HEIGHT = 400
-	const renderWidth = lockRatio ? RENDER_HEIGHT : (totalWidth / totalHeight) * RENDER_HEIGHT
+	const renderWidth = (totalWidth / totalHeight) * RENDER_HEIGHT
 
-	// px → viewBox scale
-	const scaleX = totalWidth / renderWidth
-	const scaleY = totalHeight / RENDER_HEIGHT
+	// scale: viewBox → px
+	const scaleX = renderWidth / totalWidth
+	const scaleY = RENDER_HEIGHT / totalHeight
 
 	// border radius in viewBox units
-	const borderRadiusVB = Math.min(borderRadius * Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
+	const borderRadiusVB = Math.min(borderRadius / Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
 
+	// compute visible cells
 	const visibleCells: Array<{ row: number; col: number }> = []
-
-	for (let row = 0; row < actualRows; row++) {
+	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
 			const x = col * spacing
 			const y = row * spacing
-
 			if (
 				borderRadiusVB === 0 ||
 				isRectInsideRoundedRect(x, y, elementSize, elementSize, totalWidth, totalHeight, borderRadiusVB)
@@ -76,7 +75,7 @@ export function Preview({ src, config }: PreviewProps) {
 
 	return (
 		<div className="w-full overflow-hidden" style={{ borderRadius }}>
-			<svg width="100%" height="auto" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
+			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
 				<defs>
 					<mask id="gridMask">
 						<rect width={totalWidth} height={totalHeight} fill="black" />

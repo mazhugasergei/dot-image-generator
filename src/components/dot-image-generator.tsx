@@ -15,13 +15,14 @@ export function DotImageGenerator({ className }: Props) {
 	const [files, setFiles] = React.useState<File[]>([])
 	const [imageUrls, setImageUrls] = React.useState<string[]>([])
 	const [config, setConfig] = React.useState<PreviewConfig>({
-		cols: 10,
-		rows: 10,
+		cols: 20,
+		rows: 20,
 		lockRatio: true,
 		circleRadius: 15,
 		gap: 10,
 		borderRadius: 0,
 	})
+	const [ratio, setRatio] = React.useState(config.cols / config.rows)
 
 	const actualRows = config.lockRatio ? config.cols : config.rows
 	const elementSize = 30
@@ -37,8 +38,6 @@ export function DotImageGenerator({ className }: Props) {
 	}, [maxBorderRadius])
 
 	React.useEffect(() => {
-		console.log(files)
-
 		// Create URLs for image previews
 		const urls = files.map((file) => URL.createObjectURL(file))
 		setImageUrls(urls)
@@ -49,14 +48,30 @@ export function DotImageGenerator({ className }: Props) {
 		}
 	}, [files])
 
+	React.useEffect(() => {
+		// Update ratio when cols or rows change, but only when ratio is unlocked
+		if (!config.lockRatio && config.rows > 0) {
+			setRatio(config.cols / config.rows)
+		}
+	}, [config.cols, config.rows, config.lockRatio])
+
 	const updateConfig = (key: keyof PreviewConfig, value: number | boolean) => {
 		setConfig((prev) => {
-			const newConfig = { ...prev, [key]: value }
+			let newConfig = { ...prev, [key]: value }
 
-			// If ratio is locked and changing cols or rows, sync both values
 			if (prev.lockRatio && (key === "cols" || key === "rows")) {
-				newConfig.cols = value as number
-				newConfig.rows = value as number
+				if (key === "cols") {
+					// Apply stored ratio to rows when cols change
+					newConfig.rows = Math.max(1, Math.round((value as number) / ratio))
+				} else if (key === "rows") {
+					// Apply stored ratio to cols when rows change
+					newConfig.cols = Math.max(1, Math.round((value as number) * ratio))
+				}
+			} else if (key === "lockRatio" && value === true) {
+				// Store current ratio when locking
+				if (prev.rows > 0) {
+					setRatio(prev.cols / prev.rows)
+				}
 			}
 
 			return newConfig

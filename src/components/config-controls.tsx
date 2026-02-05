@@ -1,6 +1,9 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { useRef } from "react"
 
 export interface PreviewConfig {
 	cols: number
@@ -8,7 +11,7 @@ export interface PreviewConfig {
 	lockRatio: boolean
 	circleRadius: number
 	gap: number
-	borderRadius: number // CSS px
+	borderRadius: number
 }
 
 export interface ConfigControlsProps {
@@ -28,10 +31,11 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 		borderRadius: 0,
 	}
 
+	const lastValues = useRef({ cols: config.cols, rows: config.rows })
+
 	const handleReset = () => {
-		Object.entries(defaultConfig).forEach(([key, value]) => {
-			updateConfig(key as keyof PreviewConfig, value)
-		})
+		Object.entries(defaultConfig).forEach(([key, value]) => updateConfig(key as keyof PreviewConfig, value))
+		lastValues.current = { cols: defaultConfig.cols, rows: defaultConfig.rows }
 		onReset?.()
 	}
 
@@ -43,31 +47,63 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					Reset
 				</Button>
 			</div>
+
 			<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+				{/* Columns */}
 				<div className="space-y-2">
 					<Label htmlFor="cols">Columns</Label>
-					<Input
-						id="cols"
-						type="number"
-						min="1"
-						max="1000"
-						value={config.cols}
-						onChange={(e) => updateConfig("cols", parseInt(e.target.value) || 1)}
-					/>
+					<div className="flex items-center gap-2">
+						<Slider
+							id="cols"
+							min={1}
+							max={100}
+							step={1}
+							value={[config.cols]}
+							onValueChange={(value) => updateConfig("cols", value[0] ?? 1)}
+							onValueCommit={(value) => {
+								const newCols = value[0] ?? 1
+								if (config.lockRatio) {
+									const delta = newCols - lastValues.current.cols
+									const newRows = Math.max(1, lastValues.current.rows + delta)
+									updateConfig("rows", newRows)
+									lastValues.current = { cols: newCols, rows: newRows }
+								} else {
+									lastValues.current.cols = newCols
+								}
+							}}
+						/>
+						<span className="text-muted-foreground w-12 text-sm">{config.cols}</span>
+					</div>
 				</div>
 
+				{/* Rows */}
 				<div className="space-y-2">
 					<Label htmlFor="rows">Rows</Label>
-					<Input
-						id="rows"
-						type="number"
-						min="1"
-						max="1000"
-						value={config.rows}
-						onChange={(e) => updateConfig("rows", parseInt(e.target.value) || 1)}
-					/>
+					<div className="flex items-center gap-2">
+						<Slider
+							id="rows"
+							min={1}
+							max={100}
+							step={1}
+							value={[config.rows]}
+							onValueChange={(value) => updateConfig("rows", value[0] ?? 1)}
+							onValueCommit={(value) => {
+								const newRows = value[0] ?? 1
+								if (config.lockRatio) {
+									const delta = newRows - lastValues.current.rows
+									const newCols = Math.max(1, lastValues.current.cols + delta)
+									updateConfig("cols", newCols)
+									lastValues.current = { cols: newCols, rows: newRows }
+								} else {
+									lastValues.current.rows = newRows
+								}
+							}}
+						/>
+						<span className="text-muted-foreground w-12 text-sm">{config.rows}</span>
+					</div>
 				</div>
 
+				{/* Lock Ratio */}
 				<div className="space-y-2">
 					<Label htmlFor="lockRatio">Lock Ratio</Label>
 					<Button
@@ -81,40 +117,52 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					</Button>
 				</div>
 
+				{/* Circle Radius */}
 				<div className="space-y-2">
 					<Label htmlFor="circleRadius">Circle Radius</Label>
-					<Input
-						id="circleRadius"
-						type="number"
-						min="1"
-						max="1000"
-						value={config.circleRadius}
-						onChange={(e) => updateConfig("circleRadius", parseInt(e.target.value) || 1)}
-					/>
+					<div className="flex items-center gap-2">
+						<Slider
+							id="circleRadius"
+							min={1}
+							max={1000}
+							step={1}
+							value={[config.circleRadius]}
+							onValueChange={(value) => updateConfig("circleRadius", value[0] ?? 1)}
+						/>
+						<span className="text-muted-foreground w-12 text-sm">{config.circleRadius}</span>
+					</div>
 				</div>
 
+				{/* Gap */}
 				<div className="space-y-2">
 					<Label htmlFor="gap">Gap</Label>
-					<Input
-						id="gap"
-						type="number"
-						min="0"
-						max="1000"
-						value={config.gap}
-						onChange={(e) => updateConfig("gap", parseInt(e.target.value) || 0)}
-					/>
+					<div className="flex items-center gap-2">
+						<Slider
+							id="gap"
+							min={0}
+							max={1000}
+							step={1}
+							value={[config.gap]}
+							onValueChange={(value) => updateConfig("gap", value[0] ?? 0)}
+						/>
+						<span className="text-muted-foreground w-12 text-sm">{config.gap}</span>
+					</div>
 				</div>
 
+				{/* Border Radius */}
 				<div className="space-y-2">
 					<Label htmlFor="borderRadius">Border Radius</Label>
-					<Input
-						id="borderRadius"
-						type="number"
-						min="0"
-						max={maxBorderRadius}
-						value={config.borderRadius}
-						onChange={(e) => updateConfig("borderRadius", parseInt(e.target.value) || 0)}
-					/>
+					<div className="flex items-center gap-2">
+						<Slider
+							id="borderRadius"
+							min={0}
+							max={maxBorderRadius}
+							step={1}
+							value={[config.borderRadius]}
+							onValueChange={(value) => updateConfig("borderRadius", value[0] ?? 0)}
+						/>
+						<span className="text-muted-foreground w-12 text-sm">{config.borderRadius}</span>
+					</div>
 				</div>
 			</div>
 		</div>
