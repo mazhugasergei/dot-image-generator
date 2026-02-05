@@ -15,14 +15,17 @@ import { Upload, X } from "lucide-react"
 import React from "react"
 import { toast } from "sonner"
 
-export function FileUpload() {
-	const [files, setFiles] = React.useState<File[]>([])
+interface FileUploadProps {
+	files: File[]
+	onFilesChange: (files: File[]) => void
+}
 
+export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 	const onFileValidate = React.useCallback(
 		(file: File): string | null => {
 			// Validate max files
-			if (files.length >= 2) {
-				return "You can only upload up to 2 files"
+			if (files.length >= 1) {
+				return "You can only upload up to 1 file"
 			}
 
 			// Validate file type (only images)
@@ -30,8 +33,8 @@ export function FileUpload() {
 				return "Only image files are allowed"
 			}
 
-			// Validate file size (max 2MB)
-			const MAX_SIZE = 2 * 1024 * 1024 // 2MB
+			// Validate file size
+			const MAX_SIZE = 5 * 1024 * 1024 // 5MB
 			if (file.size > MAX_SIZE) {
 				return `File size must be less than ${MAX_SIZE / (1024 * 1024)}MB`
 			}
@@ -50,11 +53,11 @@ export function FileUpload() {
 	return (
 		<FileUploadComponent
 			value={files}
-			onValueChange={setFiles}
+			onValueChange={onFilesChange}
 			onFileValidate={onFileValidate}
 			onFileReject={onFileReject}
 			accept="image/*"
-			maxFiles={2}
+			maxFiles={1}
 			className="w-full max-w-md"
 			multiple
 		>
@@ -64,7 +67,7 @@ export function FileUpload() {
 						<Upload className="text-muted-foreground size-6" />
 					</div>
 					<p className="text-sm font-medium">Drag & drop files here</p>
-					<p className="text-muted-foreground text-xs">Or click to browse (max 2 files)</p>
+					<p className="text-muted-foreground text-xs">Or click to browse</p>
 				</div>
 				<FileUploadTrigger asChild>
 					<Button variant="outline" size="sm" className="mt-2 w-fit">
