@@ -146,7 +146,6 @@ export function DotImageGenerator({ className }: Props) {
 
 					<Preview
 						src={imageUrls[0]}
-						alt={files[0].name}
 						cols={config.cols}
 						rows={config.rows}
 						lockRatio={config.lockRatio}
