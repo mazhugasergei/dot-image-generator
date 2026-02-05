@@ -78,7 +78,7 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 	}
 
 	return (
-		<div className="w-full overflow-hidden" style={{ borderRadius }}>
+		<div className="w-full overflow-hidden" style={{ borderRadius }} data-preview-container>
 			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
 				<defs>
 					<mask id="gridMask">

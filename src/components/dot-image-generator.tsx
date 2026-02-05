@@ -4,8 +4,12 @@ import type { PreviewConfig } from "@/components/config-controls"
 import { ConfigControls } from "@/components/config-controls"
 import { FileUpload } from "@/components/file-upload"
 import { Preview } from "@/components/preview"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { DEFAULT_CONFIG, ELEMENT_SIZE } from "@/lib/constants"
 import { cn } from "@/utils"
+import { downloadPNG, downloadSVG } from "@/utils/download"
+import { Download } from "lucide-react"
 import React from "react"
 
 interface Props {
@@ -96,6 +100,20 @@ export function DotImageGenerator({ className }: Props) {
 
 	const handleReset = () => setConfig(DEFAULT_CONFIG)
 
+	const handleDownload = async (format: "png" | "svg") => {
+		if (!imageUrls[0]) return
+
+		try {
+			if (format === "svg") {
+				await downloadSVG()
+			} else if (format === "png") {
+				await downloadPNG()
+			}
+		} catch (error) {
+			console.error("Download failed:", error)
+		}
+	}
+
 	return (
 		<div className={cn("flex w-full max-w-md flex-col items-center gap-6", className)}>
 			<FileUpload files={files} onFilesChange={setFiles} />
@@ -110,6 +128,19 @@ export function DotImageGenerator({ className }: Props) {
 					/>
 
 					<Preview src={imageUrls[0]} config={config} circleRadius={circleRadius} />
+
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="default">
+								<Download className="mr-2 h-4 w-4" />
+								Download
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem onClick={() => handleDownload("svg")}>Download as SVG</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => handleDownload("png")}>Download as PNG</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</>
 			)}
 		</div>
