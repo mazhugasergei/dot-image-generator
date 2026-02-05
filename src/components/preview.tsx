@@ -1,3 +1,5 @@
+import React from "react"
+
 interface PreviewConfig {
 	cols: number
 	rows: number
@@ -13,7 +15,6 @@ interface PreviewProps {
 	circleRadius: number
 }
 
-// Checks if a rectangle fits fully inside a rounded rectangle
 function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: number, H: number, r: number) {
 	r = Math.min(r, W / 2, H / 2)
 
@@ -48,21 +49,16 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 	const totalWidth = cols * elementSize + (cols - 1) * gap
 	const totalHeight = rows * elementSize + (rows - 1) * gap
 
-	// rendered size in px
 	const RENDER_HEIGHT = 400
 	const renderWidth = (totalWidth / totalHeight) * RENDER_HEIGHT
 
-	// scale: viewBox → px
 	const scaleX = renderWidth / totalWidth
 	const scaleY = RENDER_HEIGHT / totalHeight
 
-	// border radius in viewBox units
 	const borderRadiusVB = Math.min(borderRadius / Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
 
-	// circle radius is already calculated for the viewBox coordinate system
 	const circleRadiusVB = circleRadius
 
-	// compute visible cells
 	const visibleCells: Array<{ row: number; col: number }> = []
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
@@ -77,34 +73,56 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 		}
 	}
 
-	return (
-		<div className="w-full overflow-hidden" style={{ borderRadius }} data-preview-container>
-			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
-				<defs>
-					<mask id="gridMask">
-						<rect width={totalWidth} height={totalHeight} fill="black" />
-						{visibleCells.map(({ row, col }) => (
-							<rect
-								key={`${row}-${col}`}
-								x={col * spacing}
-								y={row * spacing}
-								width={elementSize}
-								height={elementSize}
-								rx={circleRadiusVB}
-								ry={circleRadiusVB}
-								fill="white"
-							/>
-						))}
-					</mask>
-				</defs>
+	// Load image and compute average color per cell
+	const [colors, setColors] = React.useState<string[][]>([])
 
-				<image
-					href={src}
-					width={totalWidth}
-					height={totalHeight}
-					preserveAspectRatio="xMidYMid slice"
-					mask="url(#gridMask)"
-				/>
+	React.useEffect(() => {
+		const img = new Image()
+		img.crossOrigin = "anonymous"
+		img.src = src
+		img.onload = () => {
+			const canvas = document.createElement("canvas")
+			canvas.width = totalWidth
+			canvas.height = totalHeight
+			const ctx = canvas.getContext("2d")!
+			ctx.drawImage(img, 0, 0, totalWidth, totalHeight)
+
+			const cellColors: string[][] = []
+
+			for (let row = 0; row < rows; row++) {
+				const rowColors: string[] = []
+				for (let col = 0; col < cols; col++) {
+					const x = col * spacing
+					const y = row * spacing
+					const imageData = ctx.getImageData(x, y, elementSize, elementSize)
+					let r = 0,
+						g = 0,
+						b = 0
+					const data = imageData.data
+					for (let i = 0; i < data.length; i += 4) {
+						r += data[i]
+						g += data[i + 1]
+						b += data[i + 2]
+					}
+					const count = data.length / 4
+					rowColors.push(`rgb(${Math.round(r / count)},${Math.round(g / count)},${Math.round(b / count)})`)
+				}
+				cellColors.push(rowColors)
+			}
+
+			setColors(cellColors)
+		}
+	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight])
+
+	return (
+		<div className="w-full overflow-hidden" data-preview-container>
+			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
+				{visibleCells.map(({ row, col }) => {
+					const color = colors[row]?.[col] || "#000"
+					const cx = col * spacing + elementSize / 2
+					const cy = row * spacing + elementSize / 2
+					return <circle key={`${row}-${col}`} cx={cx} cy={cy} r={circleRadiusVB} fill={color} />
+				})}
 			</svg>
 		</div>
 	)
