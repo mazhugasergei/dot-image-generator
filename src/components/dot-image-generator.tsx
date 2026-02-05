@@ -1,12 +1,12 @@
 "use client"
 
-import type { PreviewConfig } from "@/components/config-controls"
 import { ConfigControls } from "@/components/config-controls"
 import { FileUpload } from "@/components/file-upload"
 import { Preview } from "@/components/preview"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { DEFAULT_CONFIG, ELEMENT_SIZE } from "@/lib/constants"
+import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { downloadPNG, downloadSVG } from "@/utils/download"
 import { Download } from "lucide-react"

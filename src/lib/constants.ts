@@ -1,4 +1,4 @@
-import type { PreviewConfig } from "@/components/config-controls"
+import type { PreviewConfig } from "@/types/config"
 
 export const DEFAULT_CONFIG: PreviewConfig = {
 	cols: 30,
@@ -10,3 +10,11 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 }
 
 export const ELEMENT_SIZE = 30
+
+export const MAX_CONFIG_VALUES: Partial<PreviewConfig> = {
+	cols: 80,
+	rows: 80,
+	circleRadius: 1,
+	gap: 50,
+	borderRadius: 100,
+} as const

@@ -3,16 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { DEFAULT_CONFIG, MAX_CONFIG_VALUES } from "@/lib/constants"
+import { PreviewConfig } from "@/types/config"
 import { useRef } from "react"
-
-export interface PreviewConfig {
-	cols: number
-	rows: number
-	lockRatio: boolean
-	circleRadius: number
-	gap: number
-	borderRadius: number
-}
 
 export interface ConfigControlsProps {
 	config: PreviewConfig
@@ -22,20 +15,11 @@ export interface ConfigControlsProps {
 }
 
 export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset }: ConfigControlsProps) {
-	const defaultConfig: PreviewConfig = {
-		cols: 10,
-		rows: 10,
-		lockRatio: true,
-		circleRadius: 0.5,
-		gap: 10,
-		borderRadius: 0,
-	}
-
 	const lastValues = useRef({ cols: config.cols, rows: config.rows })
 
 	const handleReset = () => {
-		Object.entries(defaultConfig).forEach(([key, value]) => updateConfig(key as keyof PreviewConfig, value))
-		lastValues.current = { cols: defaultConfig.cols, rows: defaultConfig.rows }
+		Object.entries(DEFAULT_CONFIG).forEach(([key, value]) => updateConfig(key as keyof PreviewConfig, value))
+		lastValues.current = { cols: DEFAULT_CONFIG.cols, rows: DEFAULT_CONFIG.rows }
 		onReset?.()
 	}
 
@@ -56,7 +40,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						<Slider
 							id="cols"
 							min={1}
-							max={100}
+							max={MAX_CONFIG_VALUES.cols}
 							step={1}
 							value={[config.cols]}
 							onValueChange={(value) => updateConfig("cols", value[0] ?? 1)}
@@ -83,7 +67,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						<Slider
 							id="rows"
 							min={1}
-							max={100}
+							max={MAX_CONFIG_VALUES.rows}
 							step={1}
 							value={[config.rows]}
 							onValueChange={(value) => updateConfig("rows", value[0] ?? 1)}
@@ -124,7 +108,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						<Slider
 							id="circleRadius"
 							min={0}
-							max={1}
+							max={MAX_CONFIG_VALUES.circleRadius}
 							step={0.01}
 							value={[config.circleRadius]}
 							onValueChange={(value) => updateConfig("circleRadius", value[0] ?? 0)}
@@ -140,7 +124,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						<Slider
 							id="gap"
 							min={0}
-							max={100}
+							max={MAX_CONFIG_VALUES.gap}
 							step={1}
 							value={[config.gap]}
 							onValueChange={(value) => updateConfig("gap", value[0] ?? 0)}
