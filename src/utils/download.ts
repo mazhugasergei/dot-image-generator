@@ -51,6 +51,20 @@ export async function downloadPNG(
 		finalHeight = (vbHeight / vbWidth) * targetWidth
 	} else if (!targetWidth && targetHeight) {
 		finalWidth = (vbWidth / vbHeight) * targetHeight
+	} else if (targetWidth && targetHeight) {
+		// when both dimensions are provided, maintain aspect ratio by using the smaller scale
+		const svgAspect = vbWidth / vbHeight
+		const targetAspect = targetWidth / targetHeight
+
+		if (svgAspect > targetAspect) {
+			// svg is wider than target ratio - fit to width
+			finalWidth = targetWidth
+			finalHeight = targetWidth / svgAspect
+		} else {
+			// svg is taller than target ratio - fit to height
+			finalHeight = targetHeight
+			finalWidth = targetHeight * svgAspect
+		}
 	}
 
 	return new Promise<void>((resolve, reject) => {
