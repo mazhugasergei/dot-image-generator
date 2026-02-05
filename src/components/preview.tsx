@@ -75,12 +75,8 @@ export function Preview({ src, config }: PreviewProps) {
 	}
 
 	return (
-		<div className="overflow-hidden" style={{ borderRadius }}>
-			<svg
-				width="100%"
-				height={lockRatio ? RENDER_HEIGHT : (actualRows / cols) * RENDER_HEIGHT}
-				viewBox={`0 0 ${totalWidth} ${totalHeight}`}
-			>
+		<div className="w-full overflow-hidden" style={{ borderRadius }}>
+			<svg width="100%" height="auto" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
 				<defs>
 					<mask id="gridMask">
 						<rect width={totalWidth} height={totalHeight} fill="black" />
