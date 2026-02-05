@@ -10,6 +10,7 @@ interface PreviewConfig {
 interface PreviewProps {
 	src: string
 	config: PreviewConfig
+	circleRadius: number
 }
 
 // Checks if a rectangle fits fully inside a rounded rectangle
@@ -38,8 +39,8 @@ function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: 
 	})
 }
 
-export function Preview({ src, config }: PreviewProps) {
-	const { cols, rows, circleRadius, gap, borderRadius } = config
+export function Preview({ src, config, circleRadius }: PreviewProps) {
+	const { cols, rows, gap, borderRadius } = config
 
 	const elementSize = 30
 	const spacing = elementSize + gap
@@ -57,6 +58,9 @@ export function Preview({ src, config }: PreviewProps) {
 
 	// border radius in viewBox units
 	const borderRadiusVB = Math.min(borderRadius / Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
+
+	// circle radius is already calculated for the viewBox coordinate system
+	const circleRadiusVB = circleRadius
 
 	// compute visible cells
 	const visibleCells: Array<{ row: number; col: number }> = []
@@ -86,8 +90,8 @@ export function Preview({ src, config }: PreviewProps) {
 								y={row * spacing}
 								width={elementSize}
 								height={elementSize}
-								rx={circleRadius}
-								ry={circleRadius}
+								rx={circleRadiusVB}
+								ry={circleRadiusVB}
 								fill="white"
 							/>
 						))}

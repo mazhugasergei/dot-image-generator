@@ -26,7 +26,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 		cols: 10,
 		rows: 10,
 		lockRatio: true,
-		circleRadius: 15,
+		circleRadius: 0.5,
 		gap: 10,
 		borderRadius: 0,
 	}
@@ -123,13 +123,13 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					<div className="flex items-center gap-2">
 						<Slider
 							id="circleRadius"
-							min={1}
-							max={1000}
-							step={1}
+							min={0}
+							max={1}
+							step={0.01}
 							value={[config.circleRadius]}
-							onValueChange={(value) => updateConfig("circleRadius", value[0] ?? 1)}
+							onValueChange={(value) => updateConfig("circleRadius", value[0] ?? 0)}
 						/>
-						<span className="text-muted-foreground w-12 text-sm">{config.circleRadius}</span>
+						<span className="text-muted-foreground w-12 text-sm">{Math.round(config.circleRadius * 100)}%</span>
 					</div>
 				</div>
 
@@ -140,7 +140,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 						<Slider
 							id="gap"
 							min={0}
-							max={1000}
+							max={100}
 							step={1}
 							value={[config.gap]}
 							onValueChange={(value) => updateConfig("gap", value[0] ?? 0)}
