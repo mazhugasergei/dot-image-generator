@@ -132,11 +132,11 @@ export function DotImageGenerator({ className }: Props) {
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="default">
-								<Download className="mr-2 h-4 w-4" />
+								<Download className="h-4 w-4" />
 								Download
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent>
+						<DropdownMenuContent side="top">
 							<DropdownMenuItem onClick={() => handleDownload("svg")}>Download as SVG</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => handleDownload("png")}>Download as PNG</DropdownMenuItem>
 						</DropdownMenuContent>
