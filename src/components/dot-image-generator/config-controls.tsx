@@ -31,7 +31,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					Reset
 				</Button>
 			</div>
-			// layout controls
+			{/* layout controls */}
 			<div className="space-y-4">
 				<h4 className="text-muted-foreground text-sm font-medium">layout</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
@@ -104,6 +104,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					</div>
 				</div>
 			</div>
+
 			{/* style controls */}
 			<div className="space-y-4">
 				<h4 className="text-muted-foreground text-sm font-medium">style</h4>
@@ -157,6 +158,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 					</div>
 				</div>
 			</div>
+
 			{/* color controls */}
 			<div className="space-y-4">
 				<h4 className="text-muted-foreground text-sm font-medium">colors</h4>

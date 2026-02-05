@@ -172,9 +172,17 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
-					const cx = col * spacing + elementSize / 2
-					const cy = row * spacing + elementSize / 2
-					return <circle key={`${row}-${col}`} cx={cx} cy={cy} r={circleRadiusVB} fill={color} />
+					return (
+						<rect
+							key={`${row}-${col}`}
+							x={col * spacing}
+							y={row * spacing}
+							width={elementSize}
+							height={elementSize}
+							rx={circleRadiusVB}
+							fill={color}
+						/>
+					)
 				})}
 			</svg>
 		</div>
