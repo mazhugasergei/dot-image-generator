@@ -110,7 +110,28 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 			canvas.width = totalWidth
 			canvas.height = totalHeight
 			const ctx = canvas.getContext("2d")!
-			ctx.drawImage(img, 0, 0, totalWidth, totalHeight)
+
+			// calculate dimensions to crop and center image without stretching
+			const imgAspect = img.width / img.height
+			const canvasAspect = totalWidth / totalHeight
+
+			let drawWidth, drawHeight, drawX, drawY
+
+			if (imgAspect > canvasAspect) {
+				// image is wider than canvas - fit to height
+				drawHeight = totalHeight
+				drawWidth = totalHeight * imgAspect
+				drawX = (totalWidth - drawWidth) / 2
+				drawY = 0
+			} else {
+				// image is taller than canvas - fit to width
+				drawWidth = totalWidth
+				drawHeight = totalWidth / imgAspect
+				drawX = 0
+				drawY = (totalHeight - drawHeight) / 2
+			}
+
+			ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
 
 			const cellColors: string[][] = []
 
