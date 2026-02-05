@@ -17,20 +17,13 @@ interface Props {
 export function DotImageGenerator({ className }: Props) {
 	const [files, setFiles] = React.useState<File[]>([])
 	const [imageUrls, setImageUrls] = React.useState<string[]>([])
-	const [imageDimensions, setImageDimensions] = React.useState<{ width: number; height: number } | null>(null)
+	const [previewDimensions, setPreviewDimensions] = React.useState<{ width: number; height: number } | null>(null)
 	const [config, setConfig] = React.useState<PreviewConfig>(DEFAULT_CONFIG)
 	const [ratio, setRatio] = React.useState(config.cols / config.rows)
 
-	const elementSize = ELEMENT_SIZE
-
-	const totalWidth = imageDimensions
-		? imageDimensions.width
-		: config.cols * elementSize + (config.cols - 1) * config.gap
-	const totalHeight = imageDimensions
-		? imageDimensions.height
-		: config.rows * elementSize + (config.rows - 1) * config.gap
-
 	// Maximum border radius for the overall image
+	const totalWidth = previewDimensions?.width || 0
+	const totalHeight = previewDimensions?.height || 0
 	const maxBorderRadius = Math.ceil(Math.min(totalWidth, totalHeight) / 2)
 
 	// Calculate dynamic circle radius based on available space and user setting
@@ -47,23 +40,40 @@ export function DotImageGenerator({ className }: Props) {
 		})
 	}, [maxBorderRadius])
 
+	// Measure preview element dimensions
+	React.useEffect(() => {
+		const measurePreview = () => {
+			const previewElement = document.querySelector("[data-preview-container]") as HTMLElement
+			if (previewElement) {
+				const rect = previewElement.getBoundingClientRect()
+				setPreviewDimensions({ width: rect.width, height: rect.height })
+			}
+		}
+
+		// Initial measurement
+		measurePreview()
+
+		// Set up ResizeObserver to track dimension changes
+		let resizeObserver: ResizeObserver
+		const previewElement = document.querySelector("[data-preview-container]") as HTMLElement
+		if (previewElement) {
+			resizeObserver = new ResizeObserver(measurePreview)
+			resizeObserver.observe(previewElement)
+		}
+
+		return () => {
+			if (resizeObserver) {
+				resizeObserver.disconnect()
+			}
+		}
+	}, [files])
+
 	React.useEffect(() => {
 		if (files.length === 0) return
 
 		// Create URLs for image previews
 		const urls = files.map((file) => URL.createObjectURL(file))
 		setImageUrls(urls)
-
-		// Get image dimensions
-		if (urls.length > 0) {
-			const img = new Image()
-			img.onload = () => {
-				setImageDimensions({ width: img.width, height: img.height })
-			}
-			img.src = urls[0]
-		} else {
-			setImageDimensions(null)
-		}
 
 		// Cleanup object URLs
 		return () => urls.forEach((url) => URL.revokeObjectURL(url))
