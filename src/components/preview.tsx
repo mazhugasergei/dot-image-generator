@@ -6,6 +6,7 @@ interface PreviewProps {
 	lockRatio?: boolean
 	circleRadius?: number
 	gap?: number
+	borderRadius?: number
 }
 
 export function Preview({
@@ -16,19 +17,27 @@ export function Preview({
 	lockRatio = true,
 	circleRadius = 15,
 	gap = 10,
+	borderRadius = 0,
 }: PreviewProps) {
 	// Calculate actual rows if ratio is locked
 	const actualRows = lockRatio ? cols : rows
 
 	// Calculate spacing between circle centers
-	const spacing = circleRadius * 2 + gap
+	const elementSize = 30 // Fixed rectangle size
+	const spacing = elementSize + gap
 
 	// Calculate total dimensions (don't add gap after last circle)
-	const totalWidth = cols * circleRadius * 2 + (cols - 1) * gap
-	const totalHeight = actualRows * circleRadius * 2 + (actualRows - 1) * gap
+	const totalWidth = cols * elementSize + (cols - 1) * gap
+	const totalHeight = actualRows * elementSize + (actualRows - 1) * gap
 
 	return (
-		<div className="w-full border">
+		<div
+			className="overflow-hidden border"
+			style={{
+				borderRadius: `${borderRadius}px`,
+				clipPath: borderRadius > 0 ? `inset(0 round ${borderRadius}px)` : "none",
+			}}
+		>
 			<svg
 				width="100%"
 				height={lockRatio ? "400" : `${(actualRows / cols) * 400}`}
@@ -40,11 +49,14 @@ export function Preview({
 						<rect width={totalWidth} height={totalHeight} fill="black" />
 						{Array.from({ length: actualRows }, (_, row) =>
 							Array.from({ length: cols }, (_, col) => (
-								<circle
+								<rect
 									key={`${row}-${col}`}
-									cx={col * spacing + circleRadius}
-									cy={row * spacing + circleRadius}
-									r={circleRadius}
+									x={col * spacing}
+									y={row * spacing}
+									width={elementSize}
+									height={elementSize}
+									rx={circleRadius}
+									ry={circleRadius}
 									fill="white"
 								/>
 							))

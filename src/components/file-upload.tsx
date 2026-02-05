@@ -61,20 +61,22 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 			className="w-full max-w-md"
 			multiple
 		>
-			<FileUploadDropzone>
-				<div className="flex flex-col items-center gap-1">
-					<div className="flex items-center justify-center rounded-full border p-2.5">
-						<Upload className="text-muted-foreground size-6" />
+			{!files.length && (
+				<FileUploadDropzone>
+					<div className="flex flex-col items-center gap-1">
+						<div className="flex items-center justify-center rounded-full border p-2.5">
+							<Upload className="text-muted-foreground size-6" />
+						</div>
+						<p className="text-sm font-medium">Drag & drop files here</p>
+						<p className="text-muted-foreground text-xs">Or click to browse</p>
 					</div>
-					<p className="text-sm font-medium">Drag & drop files here</p>
-					<p className="text-muted-foreground text-xs">Or click to browse</p>
-				</div>
-				<FileUploadTrigger asChild>
-					<Button variant="outline" size="sm" className="mt-2 w-fit">
-						Browse files
-					</Button>
-				</FileUploadTrigger>
-			</FileUploadDropzone>
+					<FileUploadTrigger asChild>
+						<Button variant="outline" size="sm" className="mt-2 w-fit">
+							Browse files
+						</Button>
+					</FileUploadTrigger>
+				</FileUploadDropzone>
+			)}
 			<FileUploadList>
 				{files.map((file) => (
 					<FileUploadItem key={file.name} value={file}>
