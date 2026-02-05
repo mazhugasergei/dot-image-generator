@@ -1,15 +1,13 @@
 "use client"
 
-import { ConfigControls } from "@/components/config-controls"
-import { FileUpload } from "@/components/file-upload"
-import { Preview } from "@/components/preview"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ConfigControls } from "@/components/dot-image-generator/config-controls"
+import { DownloadButton } from "@/components/dot-image-generator/download-button"
+import { FileUpload } from "@/components/dot-image-generator/file-upload"
+import { Preview } from "@/components/dot-image-generator/preview"
 import { DEFAULT_CONFIG, ELEMENT_SIZE } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { downloadPNG, downloadSVG } from "@/utils/download"
-import { Download } from "lucide-react"
 import React from "react"
 
 interface Props {
@@ -103,14 +101,10 @@ export function DotImageGenerator({ className }: Props) {
 	const handleDownload = async (format: "png" | "svg") => {
 		if (!imageUrls[0]) return
 
-		try {
-			if (format === "svg") {
-				await downloadSVG()
-			} else if (format === "png") {
-				await downloadPNG()
-			}
-		} catch (error) {
-			console.error("Download failed:", error)
+		if (format === "svg") {
+			await downloadSVG()
+		} else if (format === "png") {
+			await downloadPNG()
 		}
 	}
 
@@ -129,18 +123,7 @@ export function DotImageGenerator({ className }: Props) {
 
 					<Preview src={imageUrls[0]} config={config} circleRadius={circleRadius} />
 
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="default">
-								<Download className="h-4 w-4" />
-								Download
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent side="top">
-							<DropdownMenuItem onClick={() => handleDownload("svg")}>Download as SVG</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => handleDownload("png")}>Download as PNG</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					<DownloadButton onDownload={handleDownload} disabled={!imageUrls[0]} />
 				</>
 			)}
 		</div>
