@@ -5,16 +5,18 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { DEFAULT_CONFIG, MAX_CONFIG_VALUES } from "@/lib/constants"
 import { PreviewConfig } from "@/types/config"
+import { cn } from "@/utils"
+import { RotateCcwIcon } from "lucide-react"
 import { useRef } from "react"
 
-export interface ConfigControlsProps {
+export interface Props extends React.HTMLAttributes<HTMLDivElement> {
 	config: PreviewConfig
 	updateConfig: (key: keyof PreviewConfig, value: number | boolean) => void
 	maxBorderRadius: number
 	onReset?: () => void
 }
 
-export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset }: ConfigControlsProps) {
+export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset, className, ...props }: Props) {
 	const lastValues = useRef({ cols: config.cols, rows: config.rows })
 
 	const handleReset = () => {
@@ -24,16 +26,19 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 	}
 
 	return (
-		<div className="w-full space-y-6">
-			<div className="flex items-center justify-between">
-				<h3 className="text-lg font-medium">configuration</h3>
-				<Button variant="outline" size="sm" onClick={handleReset}>
-					Reset
-				</Button>
+		<div className={cn("w-full", className)} {...props}>
+			<div className="flex items-center justify-between p-4">
+				<h3 className="text-lg font-medium">Configuration</h3>
+				{onReset && (
+					<Button variant="outline" size="icon" onClick={handleReset}>
+						<RotateCcwIcon />
+					</Button>
+				)}
 			</div>
+
 			{/* layout controls */}
-			<div className="space-y-4">
-				<h4 className="text-muted-foreground text-sm font-medium">layout</h4>
+			<div className="space-y-4 border-t p-4">
+				<h4 className="text-muted-foreground text-sm font-medium">Layout</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* columns */}
 					<div className="space-y-2">
@@ -106,8 +111,8 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 			</div>
 
 			{/* style controls */}
-			<div className="space-y-4">
-				<h4 className="text-muted-foreground text-sm font-medium">style</h4>
+			<div className="space-y-4 border-t p-4">
+				<h4 className="text-muted-foreground text-sm font-medium">Style</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* circle radius */}
 					<div className="space-y-2">
@@ -160,8 +165,8 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset 
 			</div>
 
 			{/* color controls */}
-			<div className="space-y-4">
-				<h4 className="text-muted-foreground text-sm font-medium">colors</h4>
+			<div className="space-y-4 border-t p-4">
+				<h4 className="text-muted-foreground text-sm font-medium">Colors</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* brightness */}
 					<div className="space-y-2">

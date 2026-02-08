@@ -58,8 +58,7 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 			onFileReject={onFileReject}
 			accept="image/*"
 			maxFiles={1}
-			className="w-full max-w-md"
-			multiple
+			className="w-full"
 		>
 			{!files.length && (
 				<FileUploadDropzone>
@@ -77,6 +76,7 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 					</FileUploadTrigger>
 				</FileUploadDropzone>
 			)}
+
 			<FileUploadList>
 				{files.map((file) => (
 					<FileUploadItem key={file.name} value={file}>

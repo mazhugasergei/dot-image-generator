@@ -168,7 +168,7 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight, brightness, saturation])
 
 	return (
-		<div className="w-full overflow-hidden" data-preview-container>
+		<div className="w-full" data-preview-container>
 			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
