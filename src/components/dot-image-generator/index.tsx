@@ -5,6 +5,7 @@ import { CropperControlled } from "@/components/dot-image-generator/cropper-cont
 import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { FileUpload } from "@/components/dot-image-generator/file-upload"
 import { Preview } from "@/components/dot-image-generator/preview"
+import { CropperPoint } from "@/components/ui/cropper"
 import { DEFAULT_CONFIG, ELEMENT_SIZE } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
@@ -21,6 +22,9 @@ export function DotImageGenerator({ className }: Props) {
 	const [previewDimensions, setPreviewDimensions] = React.useState<{ width: number; height: number } | null>(null)
 	const [config, setConfig] = React.useState<PreviewConfig>(DEFAULT_CONFIG)
 	const [ratio, setRatio] = React.useState(config.cols / config.rows)
+	const [crop, setCrop] = React.useState<CropperPoint>({ x: 0, y: 0 })
+	const [zoom, setZoom] = React.useState(1)
+	const [rotation, setRotation] = React.useState(0)
 
 	// maximum border radius for the overall image
 	const totalWidth = previewDimensions?.width || 0
@@ -125,7 +129,15 @@ export function DotImageGenerator({ className }: Props) {
 
 			{files.length > 0 && (
 				<>
-					<CropperControlled imageSrc={imageUrls[0]} />
+					<CropperControlled
+						imageSrc={imageUrls[0]}
+						crop={crop}
+						zoom={zoom}
+						rotation={rotation}
+						onCropChange={setCrop}
+						onZoomChange={setZoom}
+						onRotationChange={setRotation}
+					/>
 
 					<Preview src={imageUrls[0]} config={config} circleRadius={circleRadius} />
 

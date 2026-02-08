@@ -11,19 +11,31 @@ import React from "react"
 interface CropperControlledProps {
 	imageSrc?: string
 	className?: string
+	crop: CropperPoint
+	zoom: number
+	rotation: number
+	onCropChange: (crop: CropperPoint) => void
+	onZoomChange: (zoom: number) => void
+	onRotationChange: (rotation: number) => void
 }
 
-export function CropperControlled({ imageSrc, className }: CropperControlledProps) {
+export function CropperControlled({
+	imageSrc,
+	className,
+	crop,
+	zoom,
+	rotation,
+	onCropChange,
+	onZoomChange,
+	onRotationChange,
+}: CropperControlledProps) {
 	const id = React.useId()
-	const [crop, setCrop] = React.useState<CropperPoint>({ x: 0, y: 0 })
-	const [zoom, setZoom] = React.useState(1)
-	const [rotation, setRotation] = React.useState(0)
 
 	const onCropReset = React.useCallback(() => {
-		setCrop({ x: 0, y: 0 })
-		setZoom(1)
-		setRotation(0)
-	}, [])
+		onCropChange({ x: 0, y: 0 })
+		onZoomChange(1)
+		onRotationChange(0)
+	}, [onCropChange, onZoomChange, onRotationChange])
 
 	return (
 		<div className={cn("relative flex size-full max-w-lg flex-col overflow-hidden rounded-lg border", className)}>
@@ -32,9 +44,9 @@ export function CropperControlled({ imageSrc, className }: CropperControlledProp
 				crop={crop}
 				zoom={zoom}
 				rotation={rotation}
-				onCropChange={setCrop}
-				onZoomChange={setZoom}
-				onRotationChange={setRotation}
+				onCropChange={onCropChange}
+				onZoomChange={onZoomChange}
+				onRotationChange={onRotationChange}
 				className="min-h-[260px]"
 			>
 				<CropperImage
@@ -53,7 +65,7 @@ export function CropperControlled({ imageSrc, className }: CropperControlledProp
 					<Slider
 						id={`${id}-zoom`}
 						value={[zoom]}
-						onValueChange={(value) => setZoom(value[0] ?? 1)}
+						onValueChange={(value) => onZoomChange(value[0] ?? 1)}
 						min={1}
 						max={3}
 						step={0.1}
@@ -64,7 +76,7 @@ export function CropperControlled({ imageSrc, className }: CropperControlledProp
 					<Slider
 						id={`${id}-rotation`}
 						value={[rotation]}
-						onValueChange={(value) => setRotation(value[0] ?? 0)}
+						onValueChange={(value) => onRotationChange(value[0] ?? 0)}
 						min={-180}
 						max={180}
 						step={1}
