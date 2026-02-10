@@ -142,7 +142,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 
 					{/* lock ratio */}
 					<div className="space-y-2">
-						<Label htmlFor="ratio">Lock Ratio</Label>
+						<Label htmlFor="ratio">Lock ratio</Label>
 						<Button
 							id="ratio"
 							variant="outline"
@@ -189,7 +189,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 					<div className="space-y-2">
 						<Slider
 							id="borderRadius"
-							label="Border Radius"
+							label="Image round"
 							min={0}
 							max={maxBorderRadius}
 							step={1}
@@ -202,7 +202,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 					<div className="space-y-2">
 						<Slider
 							id="dotBorderRadius"
-							label="Dot Border Radius"
+							label="Dot round"
 							min={0}
 							max={MAX_CONFIG_VALUES.dotBorderRadius}
 							step={0.01}
@@ -215,7 +215,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 					<div className="space-y-2">
 						<Slider
 							id="gap"
-							label="Gap"
+							label="Dot gap"
 							min={0}
 							max={MAX_CONFIG_VALUES.gap}
 							step={1}
