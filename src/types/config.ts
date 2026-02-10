@@ -12,4 +12,5 @@ export interface PreviewConfig {
 
 	brightness: number
 	saturation: number
+	backgroundColor: string
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { ColorPicker } from "@/components/color-picker"
 import { Slider } from "@/components/slider"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -264,6 +265,16 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							step={1}
 							value={[config.saturation]}
 							onValueChange={(value) => updateConfig({ saturation: value[0] ?? 100 })}
+						/>
+					</div>
+
+					{/* background color */}
+					<div className="space-y-2">
+						<Label htmlFor="backgroundColor">Background color</Label>
+						<ColorPicker
+							id="backgroundColor"
+							value={config.backgroundColor}
+							onValueChange={(value) => updateConfig({ backgroundColor: value })}
 						/>
 					</div>
 				</div>

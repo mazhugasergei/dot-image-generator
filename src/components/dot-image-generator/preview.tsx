@@ -16,7 +16,19 @@ interface Props extends ComponentProps<"div"> {
 
 export function Preview({
 	src,
-	config: { cols, rows, borderRadius, dotBorderRadius, gap, brightness, saturation, crop, zoom, rotation },
+	config: {
+		cols,
+		rows,
+		borderRadius,
+		dotBorderRadius,
+		gap,
+		brightness,
+		saturation,
+		crop,
+		zoom,
+		rotation,
+		backgroundColor,
+	},
 	updateConfig,
 	className,
 	maxBorderRadius,
@@ -464,6 +476,7 @@ export function Preview({
 				onTouchEnd={handleTouchEnd}
 				className={cn("cursor-grab", isDragging && "cursor-grabbing")}
 			>
+				{backgroundColor && <rect x={0} y={0} width={dotGridWidth} height={dotGridHeight} fill={backgroundColor} />}
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
 					return (
