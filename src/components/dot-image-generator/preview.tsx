@@ -8,28 +8,22 @@ import { ComponentProps, useCallback, useEffect, useRef, useState } from "react"
 interface Props extends ComponentProps<"div"> {
 	src: string
 	config: PreviewConfig
-	updateConfig?: (value: Partial<PreviewConfig>) => void
+	updateConfig: (value: Partial<PreviewConfig>) => void
+	maxBorderRadius: number
 }
 
 export function Preview({
 	src,
 	config: { cols, rows, borderRadius, dotBorderRadius, gap, brightness, saturation, crop, zoom, rotation },
 	updateConfig,
+	className,
+	maxBorderRadius,
 	...props
 }: Props) {
-	const elementSize = ELEMENT_SIZE
-	const spacing = elementSize + gap
-
-	const totalWidth = cols * elementSize + (cols - 1) * gap
-	const totalHeight = rows * elementSize + (rows - 1) * gap
-
-	const RENDER_HEIGHT = 400
-	const renderWidth = (totalWidth / totalHeight) * RENDER_HEIGHT
-
-	const scaleX = renderWidth / totalWidth
-	const scaleY = RENDER_HEIGHT / totalHeight
-
-	const borderRadiusVB = Math.min(borderRadius / Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
+	const spacing = ELEMENT_SIZE + gap
+	const totalWidth = cols * ELEMENT_SIZE + (cols - 1) * gap
+	const totalHeight = rows * ELEMENT_SIZE + (rows - 1) * gap
+	const actualBorderRadius = borderRadius * maxBorderRadius
 
 	const visibleCells: Array<{ row: number; col: number }> = []
 	for (let row = 0; row < rows; row++) {
@@ -37,8 +31,8 @@ export function Preview({
 			const x = col * spacing
 			const y = row * spacing
 			if (
-				borderRadiusVB === 0 ||
-				isRectInsideRoundedRect(x, y, elementSize, elementSize, totalWidth, totalHeight, borderRadiusVB)
+				actualBorderRadius === 0 ||
+				isRectInsideRoundedRect(x, y, ELEMENT_SIZE, ELEMENT_SIZE, totalWidth, totalHeight, actualBorderRadius)
 			) {
 				visibleCells.push({ row, col })
 			}
@@ -409,7 +403,7 @@ export function Preview({
 				for (let col = 0; col < cols; col++) {
 					const x = col * spacing
 					const y = row * spacing
-					const imageData = ctx.getImageData(x, y, elementSize, elementSize)
+					const imageData = ctx.getImageData(x, y, ELEMENT_SIZE, ELEMENT_SIZE)
 					let r = 0,
 						g = 0,
 						b = 0
@@ -434,15 +428,14 @@ export function Preview({
 
 			setColors(cellColors)
 		}
-	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight, brightness, saturation, crop, zoom, rotation])
+	}, [src, cols, rows, spacing, ELEMENT_SIZE, totalWidth, totalHeight, brightness, saturation, crop, zoom, rotation])
 
 	return (
-		<div {...props} className={cn("w-full", props.className)} data-preview-container ref={containerRef}>
+		<div data-preview-container ref={containerRef} className={cn("w-full", className)} {...props}>
 			<svg
 				width="100%"
 				viewBox={`0 0 ${totalWidth} ${totalHeight}`}
 				preserveAspectRatio="xMidYMid meet"
-				style={{ cursor: updateConfig ? "grab" : "default" }}
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}
@@ -450,6 +443,7 @@ export function Preview({
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
+				className="cursor-grab"
 			>
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
@@ -458,9 +452,9 @@ export function Preview({
 							key={`${row}-${col}`}
 							x={col * spacing}
 							y={row * spacing}
-							width={elementSize}
-							height={elementSize}
-							rx={(dotBorderRadius / 2) * elementSize}
+							width={ELEMENT_SIZE}
+							height={ELEMENT_SIZE}
+							rx={(dotBorderRadius / 2) * ELEMENT_SIZE}
 							fill={color}
 						/>
 					)

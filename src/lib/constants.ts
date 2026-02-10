@@ -25,7 +25,7 @@ export const MAX_CONFIG_VALUES: Omit<PreviewConfig, "ratio"> = {
 
 	cols: 80,
 	rows: 80,
-	borderRadius: 100,
+	borderRadius: 1,
 	dotBorderRadius: 1,
 	gap: 30,
 

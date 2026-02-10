@@ -4,7 +4,7 @@ import { ConfigControls } from "@/components/dot-image-generator/config-controls
 import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { FileUpload } from "@/components/dot-image-generator/file-upload"
 import { Preview } from "@/components/dot-image-generator/preview"
-import { DEFAULT_CONFIG, ELEMENT_SIZE } from "@/lib/constants"
+import { DEFAULT_CONFIG } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { ComponentProps, useEffect, useState } from "react"
@@ -20,27 +20,16 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 	const totalHeight = previewDimensions?.height || 0
 	const maxBorderRadius = Math.ceil(Math.min(totalWidth, totalHeight) / 2)
 
-	// calculate dynamic dot radius based on available space and user setting
-	const cellWidth = ELEMENT_SIZE // fixed cell size in preview component
-	const cellHeight = ELEMENT_SIZE // fixed cell size in preview component
-	const maxdotBorderRadius = Math.floor(Math.min(cellWidth, cellHeight) / 2)
-	const dotBorderRadius = Math.floor(maxdotBorderRadius * config.dotBorderRadius)
-
-	// ensure border radius never exceeds max
-	useEffect(() => {
-		setConfig((prev) => ({ ...prev, borderRadius: Math.min(prev.borderRadius, maxBorderRadius) }))
-	}, [maxBorderRadius])
-
-	// measure preview element dimensions
-	useEffect(() => {
-		const measurePreview = () => {
-			const previewElement = document.querySelector("[data-preview-container]") as HTMLElement
-			if (previewElement) {
-				const rect = previewElement.getBoundingClientRect()
-				setPreviewDimensions({ width: rect.width, height: rect.height })
-			}
+	function measurePreview() {
+		const previewElement = document.querySelector("[data-preview-container]") as HTMLElement
+		if (previewElement) {
+			const rect = previewElement.getBoundingClientRect()
+			setPreviewDimensions({ width: rect.width, height: rect.height })
 		}
+	}
 
+	// measure preview element dimensions and recalculate maxBorderRadius
+	useEffect(() => {
 		// initial measurement
 		measurePreview()
 
@@ -57,7 +46,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 				resizeObserver.disconnect()
 			}
 		}
-	}, [files]) // re-run when files change to ensure preview element exists
+	}, [files])
 
 	// create urls for image previews
 	useEffect(() => {
@@ -97,7 +86,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 			<div className="space-y-6">
 				{files.length > 0 && (
 					<>
-						<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} />
+						<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} maxBorderRadius={maxBorderRadius} />
 						<DownloadButton />
 					</>
 				)}

@@ -191,8 +191,8 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							id="borderRadius"
 							label="Image round"
 							min={0}
-							max={maxBorderRadius}
-							step={1}
+							max={MAX_CONFIG_VALUES.borderRadius}
+							step={0.01}
 							value={[config.borderRadius]}
 							onValueChange={(value) => updateConfig({ borderRadius: value[0] ?? 0 })}
 						/>

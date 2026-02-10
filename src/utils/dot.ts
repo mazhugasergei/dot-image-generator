@@ -1,24 +1,30 @@
-export function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: number, H: number, r: number) {
-	r = Math.min(r, W / 2, H / 2)
-
+export function isRectInsideRoundedRect(
+	dotPositionX: number,
+	dotPositionY: number,
+	dotWidth: number,
+	dotHeight: number,
+	containerWidth: number,
+	containerHeight: number,
+	containerBorderRadius: number
+) {
 	const corners = [
-		{ x, y },
-		{ x: x + w, y },
-		{ x, y: y + h },
-		{ x: x + w, y: y + h },
+		{ x: dotPositionX, y: dotPositionY },
+		{ x: dotPositionX + dotWidth, y: dotPositionY },
+		{ x: dotPositionX, y: dotPositionY + dotHeight },
+		{ x: dotPositionX + dotWidth, y: dotPositionY + dotHeight },
 	]
 
 	return corners.every(({ x, y }) => {
 		// inside straight edges
-		if (x >= r && x <= W - r) return true
-		if (y >= r && y <= H - r) return true
+		if (x >= containerBorderRadius && x <= containerWidth - containerBorderRadius) return true
+		if (y >= containerBorderRadius && y <= containerHeight - containerBorderRadius) return true
 
 		// inside corner circles
-		const cx = x < r ? r : W - r
-		const cy = y < r ? r : H - r
+		const cx = x < containerBorderRadius ? containerBorderRadius : containerWidth - containerBorderRadius
+		const cy = y < containerBorderRadius ? containerBorderRadius : containerHeight - containerBorderRadius
 		const dx = x - cx
 		const dy = y - cy
 
-		return dx * dx + dy * dy <= r * r
+		return dx * dx + dy * dy <= containerBorderRadius * containerBorderRadius
 	})
 }
