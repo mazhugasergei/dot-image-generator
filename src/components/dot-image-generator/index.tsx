@@ -7,7 +7,6 @@ import { Preview } from "@/components/dot-image-generator/preview"
 import { DEFAULT_CONFIG, ELEMENT_SIZE } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
-import { downloadPNG, downloadSVG } from "@/utils/download"
 import { ComponentProps, useEffect, useState } from "react"
 
 export function DotImageGenerator(props: ComponentProps<"div">) {
@@ -86,12 +85,6 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 
 	const handleReset = () => setConfig(DEFAULT_CONFIG)
 
-	const handleDownload = async (format: "png" | "svg") => {
-		if (!imageUrls[0]) return
-		if (format === "svg") await downloadSVG()
-		else if (format === "png") await downloadPNG()
-	}
-
 	return (
 		<div {...props} className={cn("flex w-full max-w-md flex-col items-center gap-10", props.className)}>
 			<FileUpload files={files} onFilesChange={setFiles} />
@@ -102,7 +95,7 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 				<>
 					<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} />
 
-					<DownloadButton onDownload={handleDownload} disabled={!imageUrls[0]} className="w-full" />
+					<DownloadButton className="w-full" />
 
 					<ConfigControls
 						config={config}

@@ -1,33 +1,38 @@
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/utils"
+import { downloadPNG, downloadSVG } from "@/utils/download"
 import { Download } from "lucide-react"
+import { useState } from "react"
 
-interface Props extends React.ComponentProps<typeof Button> {
-	onDownload: (format: "png" | "svg") => Promise<void>
-	disabled?: boolean
-}
+export function DownloadButton(props: React.ComponentProps<"div">) {
+	const [selectedFormat, setSelectedFormat] = useState<"png" | "svg">("png")
 
-export function DownloadButton({ onDownload, disabled = false, ...props }: Props) {
-	const handleDownload = async (format: "png" | "svg") => {
+	const handleDownload = async () => {
 		try {
-			await onDownload(format)
+			if (selectedFormat === "svg") await downloadSVG()
+			else if (selectedFormat === "png") await downloadPNG()
 		} catch (error) {
 			console.error("Download failed:", error)
 		}
 	}
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button variant="default" disabled={disabled} {...props}>
-					<Download className="size-4" />
-					Download
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent>
-				<DropdownMenuItem onClick={() => handleDownload("svg")}>Save as SVG</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => handleDownload("png")}>Save as PNG</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+		<div {...props} className={cn("grid grid-cols-[1fr_auto] gap-2", props.className)}>
+			<Button variant="default" onClick={handleDownload}>
+				<Download className="size-4" />
+				Download {selectedFormat.toUpperCase()}
+			</Button>
+
+			<Select value={selectedFormat} onValueChange={(value) => setSelectedFormat(value as "png" | "svg")}>
+				<SelectTrigger className="w-full">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="svg">SVG</SelectItem>
+					<SelectItem value="png">PNG</SelectItem>
+				</SelectContent>
+			</Select>
+		</div>
 	)
 }
