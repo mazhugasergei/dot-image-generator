@@ -83,15 +83,28 @@ interface HSVColorValue {
 }
 
 function hexToRgb(hex: string, alpha?: number): ColorValue {
-	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-	return result
-		? {
-				r: Number.parseInt(result[1] ?? "0", 16),
-				g: Number.parseInt(result[2] ?? "0", 16),
-				b: Number.parseInt(result[3] ?? "0", 16),
-				a: alpha ?? 1,
-			}
-		: { r: 0, g: 0, b: 0, a: alpha ?? 1 }
+	const result6 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+	if (result6) {
+		return {
+			r: Number.parseInt(result6[1] ?? "0", 16),
+			g: Number.parseInt(result6[2] ?? "0", 16),
+			b: Number.parseInt(result6[3] ?? "0", 16),
+			a: alpha ?? 1,
+		}
+	}
+
+	const result8 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+	if (result8) {
+		const alphaValue = Number.parseInt(result8[4] ?? "ff", 16) / 255
+		return {
+			r: Number.parseInt(result8[1] ?? "0", 16),
+			g: Number.parseInt(result8[2] ?? "0", 16),
+			b: Number.parseInt(result8[3] ?? "0", 16),
+			a: alphaValue,
+		}
+	}
+
+	return { r: 0, g: 0, b: 0, a: alpha ?? 1 }
 }
 
 function rgbToHex(color: ColorValue): string {
@@ -209,6 +222,14 @@ function hsvToRgb(hsv: HSVColorValue): ColorValue {
 function colorToString(color: ColorValue, format: ColorFormat = "hex"): string {
 	switch (format) {
 		case "hex":
+			if (color.a < 1) {
+				const toHex = (n: number) => {
+					const hex = Math.round(n).toString(16)
+					return hex.length === 1 ? `0${hex}` : hex
+				}
+				const alpha = Math.round(color.a * 255)
+				return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}${toHex(alpha)}`
+			}
 			return rgbToHex(color)
 		case "rgb":
 			return color.a < 1
@@ -312,9 +333,9 @@ function hslToRgb(hsl: { h: number; s: number; l: number }, alpha = 1): ColorVal
 function parseColorString(value: string): ColorValue | null {
 	const trimmed = value.trim()
 
-	// Parse hex colors
+	// Parse hex colors (including 8-digit hex with alpha)
 	if (trimmed.startsWith("#")) {
-		const hexMatch = trimmed.match(/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/)
+		const hexMatch = trimmed.match(/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6}|[a-fA-F0-9]{8})$/)
 		if (hexMatch) {
 			return hexToRgb(trimmed)
 		}
@@ -492,7 +513,7 @@ function ColorPicker(props: ColorPickerProps) {
 	const listenersRef = useLazyRef(() => new Set<() => void>())
 	const stateRef = useLazyRef<StoreState>(() => {
 		const colorString = valueProp ?? defaultValue
-		const color = hexToRgb(colorString)
+		const color = parseColorString(colorString) || hexToRgb("#000000")
 
 		return {
 			color,
@@ -622,10 +643,13 @@ function ColorPickerImpl(props: ColorPickerImplProps) {
 	useIsomorphicLayoutEffect(() => {
 		if (valueProp !== undefined) {
 			const currentState = store.getState()
-			const color = hexToRgb(valueProp, currentState.color.a)
-			const hsv = rgbToHsv(color)
-			store.setColor(color)
-			store.setHsv(hsv)
+			const parsedColor = parseColorString(valueProp)
+			if (parsedColor) {
+				const color = { ...parsedColor, a: parsedColor.a || currentState.color.a }
+				const hsv = rgbToHsv(color)
+				store.setColor(color)
+				store.setHsv(hsv)
+			}
 		}
 	}, [valueProp])
 

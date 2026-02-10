@@ -270,7 +270,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 
 					{/* background color */}
 					<div className="space-y-2">
-						<Label htmlFor="backgroundColor">Background color</Label>
+						<Label htmlFor="backgroundColor">Background</Label>
 						<ColorPicker
 							id="backgroundColor"
 							value={config.backgroundColor}

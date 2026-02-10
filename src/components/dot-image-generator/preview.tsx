@@ -1,7 +1,7 @@
 import { DOT_SIZE } from "@/lib/constants"
 import { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
-import { applyColorAdjustments } from "@/utils/colors"
+import { applyColorAdjustments, parseColorAndOpacity, toHex } from "@/utils/colors"
 import { isRectInsideRoundedRect } from "@/utils/dot"
 import { ComponentProps, MouseEvent, TouchEvent, useCallback, useEffect, useRef, useState } from "react"
 
@@ -476,7 +476,12 @@ export function Preview({
 				onTouchEnd={handleTouchEnd}
 				className={cn("cursor-grab", isDragging && "cursor-grabbing")}
 			>
-				{backgroundColor && <rect x={0} y={0} width={dotGridWidth} height={dotGridHeight} fill={backgroundColor} />}
+				{backgroundColor &&
+					(() => {
+						const { opacity } = parseColorAndOpacity(backgroundColor)
+						const hexColor = toHex(backgroundColor)
+						return <rect x={0} y={0} width={dotGridWidth} height={dotGridHeight} fill={hexColor} opacity={opacity} />
+					})()}
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
 					return (
