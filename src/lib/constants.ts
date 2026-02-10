@@ -10,7 +10,7 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 	cols: 30,
 	rows: 30,
 	ratio: 1,
-	gap: 3,
+	gap: 2,
 	borderRadius: 0,
 	dotBorderRadius: 1,
 
@@ -27,7 +27,7 @@ export const MAX_CONFIG_VALUES: Omit<PreviewConfig, "ratio"> = {
 	rows: 80,
 	borderRadius: 1,
 	dotBorderRadius: 1,
-	gap: 30,
+	gap: 20,
 
 	brightness: 200,
 	saturation: 200,
