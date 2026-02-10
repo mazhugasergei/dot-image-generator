@@ -57,6 +57,7 @@ export function Preview({
 
 	// load image and compute average color per cell
 	const [colors, setColors] = useState<string[][]>([])
+	const [isDragging, setIsDragging] = useState(false)
 
 	// interactive state
 	const containerRef = useRef<HTMLDivElement>(null)
@@ -90,6 +91,7 @@ export function Preview({
 		(clientX: number, clientY: number) => {
 			if (!updateConfig) return
 			isDraggingRef.current = true
+			setIsDragging(true)
 			lastPointRef.current = { x: clientX, y: clientY }
 		},
 		[updateConfig]
@@ -161,6 +163,7 @@ export function Preview({
 
 	const handleDragEnd = useCallback(() => {
 		isDraggingRef.current = false
+		setIsDragging(false)
 		lastPointRef.current = null
 	}, [])
 
@@ -459,7 +462,7 @@ export function Preview({
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
-				className="cursor-grab"
+				className={cn("cursor-grab", isDragging && "cursor-grabbing")}
 			>
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
