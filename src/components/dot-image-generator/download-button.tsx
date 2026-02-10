@@ -3,9 +3,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/utils"
 import { downloadPNG, downloadSVG } from "@/utils/download"
 import { Download } from "lucide-react"
-import { useState } from "react"
+import { ComponentProps, useState } from "react"
 
-export function DownloadButton(props: React.ComponentProps<"div">) {
+export function DownloadButton(props: ComponentProps<"div">) {
 	const [selectedFormat, setSelectedFormat] = useState<"png" | "svg">("png")
 
 	const handleDownload = async () => {

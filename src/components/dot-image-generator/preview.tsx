@@ -3,7 +3,7 @@ import { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { applyColorAdjustments } from "@/utils/colors"
 import { isRectInsideRoundedRect } from "@/utils/dot"
-import { ComponentProps, useCallback, useEffect, useRef, useState } from "react"
+import { ComponentProps, MouseEvent, TouchEvent, useCallback, useEffect, useRef, useState } from "react"
 
 interface Props extends ComponentProps<"div"> {
 	src: string
@@ -204,7 +204,7 @@ export function Preview({
 
 	// mouse events
 	const handleMouseDown = useCallback(
-		(e: React.MouseEvent) => {
+		(e: MouseEvent) => {
 			if (e.button === 0) {
 				// left click only
 				handleDragStart(e.clientX, e.clientY)
@@ -214,7 +214,7 @@ export function Preview({
 	)
 
 	const handleMouseMove = useCallback(
-		(e: React.MouseEvent) => {
+		(e: MouseEvent) => {
 			handleDragMove(e.clientX, e.clientY)
 		},
 		[handleDragMove]
@@ -226,7 +226,7 @@ export function Preview({
 
 	// touch events
 	const handleTouchStart = useCallback(
-		(e: React.TouchEvent) => {
+		(e: TouchEvent) => {
 			if (e.touches.length === 1) {
 				const touch = e.touches[0]
 				handleDragStart(touch.clientX, touch.clientY)
@@ -242,7 +242,7 @@ export function Preview({
 	)
 
 	const handleTouchMove = useCallback(
-		(e: React.TouchEvent) => {
+		(e: TouchEvent) => {
 			if (e.touches.length === 1) {
 				const touch = e.touches[0]
 				handleDragMove(touch.clientX, touch.clientY)
@@ -264,7 +264,7 @@ export function Preview({
 
 	// wheel zoom
 	const handleWheel = useCallback(
-		(e: React.WheelEvent) => {
+		(e: WheelEvent) => {
 			if (!updateConfig) return
 			e.preventDefault()
 

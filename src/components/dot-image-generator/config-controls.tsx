@@ -7,9 +7,9 @@ import { DEFAULT_CONFIG, MAX_CONFIG_VALUES } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { LockIcon, LockOpenIcon, RotateCcwIcon } from "lucide-react"
-import { useRef } from "react"
+import { ComponentProps, useRef } from "react"
 
-export interface Props extends React.HTMLAttributes<HTMLDivElement> {
+export interface Props extends ComponentProps<"div"> {
 	config: PreviewConfig
 	updateConfig: (value: Partial<PreviewConfig>) => void
 	maxBorderRadius: number

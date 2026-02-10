@@ -4,12 +4,13 @@ import "@/globals.css"
 import { mainFont } from "@/lib/fonts"
 import { cn } from "@/utils"
 import type { Metadata } from "next"
+import { ReactNode } from "react"
 
 export const metadata: Metadata = {
 	title: "Dot Image Generator",
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className={cn(mainFont.className, "")}>

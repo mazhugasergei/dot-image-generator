@@ -1,7 +1,5 @@
-import { CropperPoint } from "@/components/ui/cropper"
-
 export interface PreviewConfig {
-	crop: CropperPoint
+	crop: { x: number; y: number }
 	zoom: number
 	rotation: number
 
