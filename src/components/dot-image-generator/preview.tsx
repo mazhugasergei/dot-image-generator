@@ -48,7 +48,7 @@ export function Preview({
 	// load image and compute average color per cell
 	const [colors, setColors] = useState<string[][]>([])
 
-	// Interactive state
+	// interactive state
 	const containerRef = useRef<HTMLDivElement>(null)
 	const isDraggingRef = useRef(false)
 	const lastPointRef = useRef<{ x: number; y: number } | null>(null)
@@ -56,7 +56,7 @@ export function Preview({
 	const lastDistanceRef = useRef(0)
 	const lastRotationRef = useRef(0)
 
-	// Convert screen coordinates to canvas coordinates
+	// convert screen coordinates to canvas coordinates
 	const screenToCanvas = useCallback(
 		(screenX: number, screenY: number) => {
 			if (!containerRef.current) return { x: 0, y: 0 }
@@ -75,7 +75,7 @@ export function Preview({
 		[totalWidth, totalHeight]
 	)
 
-	// Handle mouse/touch drag
+	// handle mouse/touch drag
 	const handleDragStart = useCallback(
 		(clientX: number, clientY: number) => {
 			if (!updateConfig) return
@@ -89,57 +89,61 @@ export function Preview({
 		(clientX: number, clientY: number) => {
 			if (!updateConfig || !isDraggingRef.current || !lastPointRef.current) return
 
-			// Calculate pointer movement distance
+			// calculate pointer movement distance
 			const deltaX = clientX - lastPointRef.current.x
 			const deltaY = clientY - lastPointRef.current.y
 
-			// Get SVG dimensions for coordinate conversion
+			// get SVG dimensions for coordinate conversion
 			const svg = containerRef.current?.querySelector("svg")
 			if (!svg) return
 
 			const svgRect = svg.getBoundingClientRect()
 			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
 
-			// Convert pixel movement to canvas units
+			// convert pixel movement to canvas units
 			const scaleX = viewBox[2] / svgRect.width
 			const scaleY = viewBox[3] / svgRect.height
 
-			// Calculate drag distance in canvas coordinates
+			// calculate drag distance in canvas coordinates
 			const dragDistanceX = deltaX * scaleX
 			const dragDistanceY = deltaY * scaleY
 
-			// Calculate transformed image dimensions
-			// Base image dimensions (assuming image covers the full canvas)
+			// apply inverse zoom to drag distance (since zoom is applied before rotation)
+			const adjustedDragX = dragDistanceX / zoom
+			const adjustedDragY = dragDistanceY / zoom
+
+			// calculate transformed image dimensions for limits
+			// base image dimensions (assuming image covers the full canvas)
 			const imageWidth = totalWidth
 			const imageHeight = totalHeight
 
-			// Apply zoom to dimensions
+			// apply zoom to dimensions
 			const scaledWidth = imageWidth * zoom
 			const scaledHeight = imageHeight * zoom
 
-			// Apply rotation to calculate bounding box
-			const rotationRad = (rotation * Math.PI) / 180
-			const cosRotation = Math.abs(Math.cos(rotationRad))
-			const sinRotation = Math.abs(Math.sin(rotationRad))
+			// apply rotation to calculate bounding box for limits
+			const absRotationRad = (rotation * Math.PI) / 180
+			const absCosRotation = Math.abs(Math.cos(absRotationRad))
+			const absSinRotation = Math.abs(Math.sin(absRotationRad))
 
-			// Calculate rotated bounding box dimensions
-			const rotatedWidth = scaledWidth * cosRotation + scaledHeight * sinRotation
-			const rotatedHeight = scaledWidth * sinRotation + scaledHeight * cosRotation
+			// calculate rotated bounding box dimensions
+			const rotatedWidth = scaledWidth * absCosRotation + scaledHeight * absSinRotation
+			const rotatedHeight = scaledWidth * absSinRotation + scaledHeight * absCosRotation
 
-			// Calculate drag limits as ±90% of transformed image dimensions
-			// Convert to percentage of canvas size
+			// calculate drag limits as ±90% of transformed image dimensions
+			// convert to percentage of canvas size
 			const maxNegativeX = ((-rotatedWidth * 0.9) / totalWidth) * 100
 			const maxPositiveX = ((rotatedWidth * 0.9) / totalWidth) * 100
 			const maxNegativeY = ((-rotatedHeight * 0.9) / totalHeight) * 100
 			const maxPositiveY = ((rotatedHeight * 0.9) / totalHeight) * 100
 
-			// Update crop position with calculated limits
-			const newCropX = Math.max(maxNegativeX, Math.min(maxPositiveX, crop.x + (dragDistanceX / totalWidth) * 100))
-			const newCropY = Math.max(maxNegativeY, Math.min(maxPositiveY, crop.y + (dragDistanceY / totalHeight) * 100))
+			// update crop position with adjusted drag distance and limits
+			const newCropX = Math.max(maxNegativeX, Math.min(maxPositiveX, crop.x + (adjustedDragX / totalWidth) * 100))
+			const newCropY = Math.max(maxNegativeY, Math.min(maxPositiveY, crop.y + (adjustedDragY / totalHeight) * 100))
 
 			updateConfig({ crop: { x: newCropX, y: newCropY } })
 
-			// Update last pointer position for next frame
+			// update last pointer position for next frame
 			lastPointRef.current = { x: clientX, y: clientY }
 		},
 		[updateConfig, crop, totalWidth, totalHeight, zoom, rotation]
@@ -150,7 +154,7 @@ export function Preview({
 		lastPointRef.current = null
 	}, [])
 
-	// Handle pinch zoom
+	// handle pinch zoom
 	const handlePinchStart = useCallback(
 		(distance: number, rotation: number) => {
 			if (!updateConfig) return
@@ -165,12 +169,12 @@ export function Preview({
 		(distance: number, rotation: number) => {
 			if (!updateConfig || !isPinchingRef.current) return
 
-			// Handle zoom
+			// handle zoom
 			const zoomDelta = distance / lastDistanceRef.current
 			const newZoom = Math.max(0.5, Math.min(3, zoom * zoomDelta))
 			updateConfig({ zoom: newZoom })
 
-			// Handle rotation
+			// handle rotation
 			const rotationDelta = rotation - lastRotationRef.current
 			const newRotation = rotation + rotationDelta
 			updateConfig({ rotation: newRotation })
@@ -185,11 +189,11 @@ export function Preview({
 		isPinchingRef.current = false
 	}, [])
 
-	// Mouse events
+	// mouse events
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent) => {
 			if (e.button === 0) {
-				// Left click only
+				// left click only
 				handleDragStart(e.clientX, e.clientY)
 			}
 		},
@@ -207,7 +211,7 @@ export function Preview({
 		handleDragEnd()
 	}, [handleDragEnd])
 
-	// Touch events
+	// touch events
 	const handleTouchStart = useCallback(
 		(e: React.TouchEvent) => {
 			if (e.touches.length === 1) {
@@ -245,43 +249,43 @@ export function Preview({
 		handlePinchEnd()
 	}, [handleDragEnd, handlePinchEnd])
 
-	// Wheel zoom
+	// wheel zoom
 	const handleWheel = useCallback(
 		(e: React.WheelEvent) => {
 			if (!updateConfig) return
 			e.preventDefault()
 
-			// Get pointer position relative to SVG
+			// get pointer position relative to SVG
 			const svg = containerRef.current?.querySelector("svg")
 			if (!svg) return
 
 			const svgRect = svg.getBoundingClientRect()
 			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
 
-			// Calculate pointer position in canvas coordinates
+			// calculate pointer position in canvas coordinates
 			const pointerX = ((e.clientX - svgRect.left) / svgRect.width) * viewBox[2]
 			const pointerY = ((e.clientY - svgRect.top) / svgRect.height) * viewBox[3]
 
-			// Calculate zoom delta
+			// calculate zoom delta
 			const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1
 			const newZoom = Math.max(0.5, Math.min(3, zoom * zoomDelta))
 
-			// Calculate the offset needed to keep pointer position fixed
-			// For center-based transforms, we need to calculate the offset differently
+			// calculate the offset needed to keep pointer position fixed
+			// for center-based transforms, we need to calculate the offset differently
 			const centerOffsetX = pointerX - totalWidth / 2
 			const centerOffsetY = pointerY - totalHeight / 2
 
-			// Calculate how much the offset changes with zoom
+			// calculate how much the offset changes with zoom
 			const zoomRatio = newZoom / zoom
 			const newCenterOffsetX = centerOffsetX * zoomRatio
 			const newCenterOffsetY = centerOffsetY * zoomRatio
 
-			// Calculate the crop offset needed to keep pointer fixed
-			// The difference in center offsets determines how much we need to adjust crop
+			// calculate the crop offset needed to keep pointer fixed
+			// the difference in center offsets determines how much we need to adjust crop
 			const cropOffsetX = (newCenterOffsetX - centerOffsetX) / zoom
 			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
 
-			// Apply the offset to current crop position
+			// apply the offset to current crop position
 			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / totalWidth) * 100))
 			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / totalHeight) * 100))
 
@@ -297,37 +301,37 @@ export function Preview({
 		const handleWheelEvent = (e: WheelEvent) => {
 			e.preventDefault()
 
-			// Get pointer position relative to SVG
+			// get pointer position relative to SVG
 			const svg = container.querySelector("svg")
 			if (!svg) return
 
 			const svgRect = svg.getBoundingClientRect()
 			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
 
-			// Calculate pointer position in canvas coordinates
+			// calculate pointer position in canvas coordinates
 			const pointerX = ((e.clientX - svgRect.left) / svgRect.width) * viewBox[2]
 			const pointerY = ((e.clientY - svgRect.top) / svgRect.height) * viewBox[3]
 
-			// Calculate zoom delta
+			// calculate zoom delta
 			const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1
 			const newZoom = Math.max(0.5, Math.min(3, zoom * zoomDelta))
 
-			// Calculate the offset needed to keep pointer position fixed
-			// For center-based transforms, we need to calculate the offset differently
+			// calculate the offset needed to keep pointer position fixed
+			// for center-based transforms, we need to calculate the offset differently
 			const centerOffsetX = pointerX - totalWidth / 2
 			const centerOffsetY = pointerY - totalHeight / 2
 
-			// Calculate how much the offset changes with zoom
+			// calculate how much the offset changes with zoom
 			const zoomRatio = newZoom / zoom
 			const newCenterOffsetX = centerOffsetX * zoomRatio
 			const newCenterOffsetY = centerOffsetY * zoomRatio
 
-			// Calculate the crop offset needed to keep pointer fixed
-			// The difference in center offsets determines how much we need to adjust crop
+			// calculate the crop offset needed to keep pointer fixed
+			// the difference in center offsets determines how much we need to adjust crop
 			const cropOffsetX = (newCenterOffsetX - centerOffsetX) / zoom
 			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
 
-			// Apply the offset to current crop position
+			// apply the offset to current crop position
 			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / totalWidth) * 100))
 			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / totalHeight) * 100))
 
@@ -359,15 +363,19 @@ export function Preview({
 			const cropXPixels = (crop.x / 100) * totalWidth
 			const cropYPixels = (crop.y / 100) * totalHeight
 
-			// Apply transformations from center
-			// First translate to center, then apply transforms, then translate back
+			// Apply transformations with rotation as the final step
+			// First translate to center, apply zoom and crop, then rotate
 			ctx.translate(totalWidth / 2, totalHeight / 2)
-			ctx.rotate((rotation * Math.PI) / 180)
 			ctx.scale(zoom, zoom)
 			ctx.translate(-totalWidth / 2, -totalHeight / 2)
 
 			// Apply crop offset (moves the image within the transformed space)
 			ctx.translate(cropXPixels, cropYPixels)
+
+			// Apply rotation as the final transformation
+			ctx.translate(totalWidth / 2, totalHeight / 2)
+			ctx.rotate((rotation * Math.PI) / 180)
+			ctx.translate(-totalWidth / 2, -totalHeight / 2)
 
 			// calculate dimensions to crop and center image without stretching
 			const imgAspect = img.width / img.height
