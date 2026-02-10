@@ -53,7 +53,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								onValueChange={(value) => updateConfig({ cols: value[0] ?? 1 })}
 								onValueCommit={(value) => {
 									const newCols = value[0] ?? 1
-									if (config.lockRatio) {
+									if (config.ratio) {
 										const delta = newCols - lastValues.current.cols
 										const newRows = Math.max(1, lastValues.current.rows + delta)
 										updateConfig({ rows: newRows })
@@ -80,7 +80,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								onValueChange={(value) => updateConfig({ rows: value[0] ?? 1 })}
 								onValueCommit={(value) => {
 									const newRows = value[0] ?? 1
-									if (config.lockRatio) {
+									if (config.ratio) {
 										const delta = newRows - lastValues.current.rows
 										const newCols = Math.max(1, lastValues.current.cols + delta)
 										updateConfig({ cols: newCols })
@@ -96,15 +96,15 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 
 					{/* lock ratio */}
 					<div className="space-y-2">
-						<Label htmlFor="lockRatio">Lock Ratio</Label>
+						<Label htmlFor="ratio">Lock Ratio</Label>
 						<Button
-							id="lockRatio"
+							id="ratio"
 							variant="outline"
 							size="sm"
-							onClick={() => updateConfig({ lockRatio: !config.lockRatio })}
+							onClick={() => updateConfig({ ratio: config.ratio ? null : config.cols / config.rows })}
 							className="w-full"
 						>
-							{config.lockRatio ? "Locked" : "Unlocked"}
+							{config.ratio ? "Locked" : "Unlocked"}
 						</Button>
 					</div>
 				</div>

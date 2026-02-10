@@ -7,7 +7,7 @@ export interface PreviewConfig {
 
 	cols: number
 	rows: number
-	lockRatio: boolean
+	ratio: number | null
 	borderRadius: number
 	dotBorderRadius: number
 	gap: number

@@ -9,7 +9,7 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 
 	cols: 30,
 	rows: 30,
-	lockRatio: true,
+	ratio: 1,
 	gap: 3,
 	borderRadius: 0,
 	dotBorderRadius: 1,

@@ -16,7 +16,6 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 	const [imageUrls, setImageUrls] = useState<string[]>([])
 	const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null)
 	const [config, setConfig] = useState<PreviewConfig>(DEFAULT_CONFIG)
-	const [ratio, setRatio] = useState(config.cols / config.rows)
 
 	// maximum border radius for the overall image
 	const totalWidth = previewDimensions?.width || 0
@@ -74,20 +73,13 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 		return () => urls.forEach((url) => URL.revokeObjectURL(url))
 	}, [files])
 
-	// update ratio only when unlocked
-	useEffect(() => {
-		if (!config.lockRatio && config.rows > 0) {
-			setRatio(config.cols / config.rows)
-		}
-	}, [config.cols, config.rows, config.lockRatio])
-
 	const updateConfig = (value: Partial<PreviewConfig>) => {
 		let res = { ...config, ...value }
 
 		// apply aspect ratio logic if cols or rows change and ratio is locked
-		if (config.lockRatio && (value.cols || value.rows)) {
-			if (value.cols) res.rows = Math.max(1, Math.round(value.cols / ratio))
-			else if (value.rows) res.cols = Math.max(1, Math.round(value.rows * ratio))
+		if (config.ratio && (value.cols || value.rows)) {
+			if (value.cols) res.rows = Math.max(1, Math.round(value.cols / config.ratio))
+			else if (value.rows) res.cols = Math.max(1, Math.round(value.rows * config.ratio))
 		}
 
 		setConfig(res)
