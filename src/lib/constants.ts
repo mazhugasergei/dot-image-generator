@@ -18,7 +18,7 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 	saturation: 100,
 }
 
-export const MAX_CONFIG_VALUES: Partial<PreviewConfig> = {
+export const MAX_CONFIG_VALUES: Omit<PreviewConfig, "ratio"> = {
 	crop: { x: 0, y: 0 },
 	zoom: 0,
 	rotation: 0,

@@ -141,7 +141,7 @@ export function Preview({
 							y={row * spacing}
 							width={elementSize}
 							height={elementSize}
-							rx={(dotBorderRadius * elementSize) / 2}
+							rx={(dotBorderRadius / 2) * elementSize}
 							fill={color}
 						/>
 					)

@@ -1,10 +1,10 @@
 "use client"
 
+import { Slider } from "@/components/slider"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
 import { DEFAULT_CONFIG, MAX_CONFIG_VALUES } from "@/lib/constants"
-import { PreviewConfig } from "@/types/config"
+import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { RotateCcwIcon } from "lucide-react"
 import { useRef } from "react"
@@ -41,57 +41,51 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 				<h4 className="text-muted-foreground text-sm font-medium">Layout</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* columns */}
-					<div className="space-y-2">
-						<Label htmlFor="cols">Columns</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="cols"
-								min={1}
-								max={MAX_CONFIG_VALUES.cols}
-								step={1}
-								value={[config.cols]}
-								onValueChange={(value) => updateConfig({ cols: value[0] ?? 1 })}
-								onValueCommit={(value) => {
-									const newCols = value[0] ?? 1
-									if (config.ratio) {
-										const delta = newCols - lastValues.current.cols
-										const newRows = Math.max(1, lastValues.current.rows + delta)
-										updateConfig({ rows: newRows })
-										lastValues.current = { cols: newCols, rows: newRows }
-									} else {
-										lastValues.current.cols = newCols
-									}
-								}}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.cols}</span>
-						</div>
+					<div className="flex w-full flex-col gap-2.5">
+						<Slider
+							id="cols"
+							label="Columns"
+							min={1}
+							max={MAX_CONFIG_VALUES.cols}
+							step={1}
+							value={[config.cols]}
+							onValueChange={(value) => updateConfig({ cols: value[0] ?? 1 })}
+							onValueCommit={(value) => {
+								const newCols = value[0] ?? 1
+								if (config.ratio) {
+									const delta = newCols - lastValues.current.cols
+									const newRows = Math.max(1, lastValues.current.rows + delta)
+									updateConfig({ rows: newRows })
+									lastValues.current = { cols: newCols, rows: newRows }
+								} else {
+									lastValues.current.cols = newCols
+								}
+							}}
+						/>
 					</div>
 
 					{/* rows */}
-					<div className="space-y-2">
-						<Label htmlFor="rows">Rows</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="rows"
-								min={1}
-								max={MAX_CONFIG_VALUES.rows}
-								step={1}
-								value={[config.rows]}
-								onValueChange={(value) => updateConfig({ rows: value[0] ?? 1 })}
-								onValueCommit={(value) => {
-									const newRows = value[0] ?? 1
-									if (config.ratio) {
-										const delta = newRows - lastValues.current.rows
-										const newCols = Math.max(1, lastValues.current.cols + delta)
-										updateConfig({ cols: newCols })
-										lastValues.current = { cols: newCols, rows: newRows }
-									} else {
-										lastValues.current.rows = newRows
-									}
-								}}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.rows}</span>
-						</div>
+					<div className="flex w-full flex-col gap-2.5">
+						<Slider
+							id="rows"
+							label="Rows"
+							min={1}
+							max={MAX_CONFIG_VALUES.rows}
+							step={1}
+							value={[config.rows]}
+							onValueChange={(value) => updateConfig({ rows: value[0] ?? 1 })}
+							onValueCommit={(value) => {
+								const newRows = value[0] ?? 1
+								if (config.ratio) {
+									const delta = newRows - lastValues.current.rows
+									const newCols = Math.max(1, lastValues.current.cols + delta)
+									updateConfig({ cols: newCols })
+									lastValues.current = { cols: newCols, rows: newRows }
+								} else {
+									lastValues.current.rows = newRows
+								}
+							}}
+						/>
 					</div>
 
 					{/* lock ratio */}
@@ -116,50 +110,41 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* border radius */}
 					<div className="space-y-2">
-						<Label htmlFor="borderRadius">Border Radius</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="borderRadius"
-								min={0}
-								max={maxBorderRadius}
-								step={1}
-								value={[config.borderRadius]}
-								onValueChange={(value) => updateConfig({ borderRadius: value[0] ?? 0 })}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.borderRadius}</span>
-						</div>
+						<Slider
+							id="borderRadius"
+							label="Border Radius"
+							min={0}
+							max={maxBorderRadius}
+							step={1}
+							value={[config.borderRadius]}
+							onValueChange={(value) => updateConfig({ borderRadius: value[0] ?? 0 })}
+						/>
 					</div>
 
 					{/* dot border radius */}
 					<div className="space-y-2">
-						<Label htmlFor="dotBorderRadius">Dot Border Radius</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="dotBorderRadius"
-								min={0}
-								max={MAX_CONFIG_VALUES.dotBorderRadius}
-								step={0.01}
-								value={[config.dotBorderRadius]}
-								onValueChange={(value) => updateConfig({ dotBorderRadius: value[0] ?? 0 })}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{Math.round(config.dotBorderRadius * 100)}%</span>
-						</div>
+						<Slider
+							id="dotBorderRadius"
+							label="Dot Border Radius"
+							min={0}
+							max={MAX_CONFIG_VALUES.dotBorderRadius}
+							step={0.01}
+							value={[config.dotBorderRadius]}
+							onValueChange={(value) => updateConfig({ dotBorderRadius: value[0] ?? 0 })}
+						/>
 					</div>
 
 					{/* gap */}
 					<div className="space-y-2">
-						<Label htmlFor="gap">Gap</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="gap"
-								min={0}
-								max={MAX_CONFIG_VALUES.gap}
-								step={1}
-								value={[config.gap]}
-								onValueChange={(value) => updateConfig({ gap: value[0] ?? 0 })}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.gap}</span>
-						</div>
+						<Slider
+							id="gap"
+							label="Gap"
+							min={0}
+							max={MAX_CONFIG_VALUES.gap}
+							step={1}
+							value={[config.gap]}
+							onValueChange={(value) => updateConfig({ gap: value[0] ?? 0 })}
+						/>
 					</div>
 				</div>
 			</div>
@@ -170,34 +155,28 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* brightness */}
 					<div className="space-y-2">
-						<Label htmlFor="brightness">Brightness</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="brightness"
-								min={0}
-								max={MAX_CONFIG_VALUES.brightness}
-								step={1}
-								value={[config.brightness]}
-								onValueChange={(value) => updateConfig({ brightness: value[0] ?? 100 })}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.brightness}%</span>
-						</div>
+						<Slider
+							id="brightness"
+							label="Brightness"
+							min={0}
+							max={MAX_CONFIG_VALUES.brightness}
+							step={1}
+							value={[config.brightness]}
+							onValueChange={(value) => updateConfig({ brightness: value[0] ?? 100 })}
+						/>
 					</div>
 
 					{/* saturation */}
 					<div className="space-y-2">
-						<Label htmlFor="saturation">Saturation</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="saturation"
-								min={0}
-								max={MAX_CONFIG_VALUES.saturation}
-								step={1}
-								value={[config.saturation]}
-								onValueChange={(value) => updateConfig({ saturation: value[0] ?? 100 })}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.saturation}%</span>
-						</div>
+						<Slider
+							id="saturation"
+							label="Saturation"
+							min={0}
+							max={MAX_CONFIG_VALUES.saturation}
+							step={1}
+							value={[config.saturation]}
+							onValueChange={(value) => updateConfig({ saturation: value[0] ?? 100 })}
+						/>
 					</div>
 				</div>
 			</div>

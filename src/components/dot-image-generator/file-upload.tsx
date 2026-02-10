@@ -12,7 +12,8 @@ import {
 	FileUploadTrigger,
 } from "@/components/ui/file-upload"
 import { Upload, X } from "lucide-react"
-import React from "react"
+import { useCallback } from "react"
+
 import { toast } from "sonner"
 
 interface FileUploadProps {
@@ -21,7 +22,7 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ files, onFilesChange }: FileUploadProps) {
-	const onFileValidate = React.useCallback(
+	const onFileValidate = useCallback(
 		(file: File): string | null => {
 			// Validate max files
 			if (files.length >= 1) {
@@ -44,7 +45,7 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 		[files]
 	)
 
-	const onFileReject = React.useCallback((file: File, message: string) => {
+	const onFileReject = useCallback((file: File, message: string) => {
 		toast(message, {
 			description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
 		})

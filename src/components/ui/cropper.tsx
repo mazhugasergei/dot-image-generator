@@ -7,7 +7,22 @@ import { useComposedRefs } from "@/lib/compose-refs"
 import { cn } from "@/utils/index"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import React from "react"
+import {
+	ComponentProps,
+	ComponentRef,
+	createContext,
+	KeyboardEvent,
+	MouseEvent,
+	RefObject,
+	SyntheticEvent,
+	TouchEvent,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useSyncExternalStore,
+} from "react"
 
 const ROOT_NAME = "Cropper"
 const ROOT_IMPL_NAME = "CropperImpl"
@@ -49,7 +64,7 @@ interface MediaSize {
 type Shape = "rectangle" | "circle"
 type ObjectFit = "contain" | "cover" | "horizontal-cover" | "vertical-cover"
 
-interface DivProps extends React.ComponentProps<"div"> {
+interface DivProps extends ComponentProps<"div"> {
 	asChild?: boolean
 }
 
@@ -296,10 +311,10 @@ interface Store {
 	batch: (fn: () => void) => void
 }
 
-const StoreContext = React.createContext<Store | null>(null)
+const StoreContext = createContext<Store | null>(null)
 
 function useStoreContext(consumerName: string) {
-	const context = React.useContext(StoreContext)
+	const context = useContext(StoreContext)
 	if (!context) {
 		throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``)
 	}
@@ -309,12 +324,12 @@ function useStoreContext(consumerName: string) {
 function useStore<T>(selector: (state: StoreState) => T): T {
 	const store = useStoreContext("useStore")
 
-	const getSnapshot = React.useCallback(() => selector(store.getState()), [store, selector])
+	const getSnapshot = useCallback(() => selector(store.getState()), [store, selector])
 
-	return React.useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot)
+	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot)
 }
 
-type RootElement = React.ComponentRef<typeof CropperImpl>
+type RootElement = ComponentRef<typeof CropperImpl>
 
 interface CropperContextValue {
 	aspectRatio: number
@@ -324,16 +339,16 @@ interface CropperContextValue {
 	keyboardStep: number
 	shape: Shape
 	objectFit: ObjectFit
-	rootRef: React.RefObject<RootElement | null>
+	rootRef: RefObject<RootElement | null>
 	allowOverflow: boolean
 	preventScrollZoom: boolean
 	withGrid: boolean
 }
 
-const CropperContext = React.createContext<CropperContextValue | null>(null)
+const CropperContext = createContext<CropperContextValue | null>(null)
 
 function useCropperContext(consumerName: string) {
-	const context = React.useContext(CropperContext)
+	const context = useContext(CropperContext)
 	if (!context) {
 		throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``)
 	}
@@ -417,9 +432,9 @@ function Cropper(props: CropperProps) {
 		onInteractionEnd,
 	})
 
-	const rootRef = React.useRef<RootElement | null>(null)
+	const rootRef = useRef<RootElement | null>(null)
 
-	const store = React.useMemo<Store>(() => {
+	const store = useMemo<Store>(() => {
 		let isBatching = false
 		let raf: number | null = null
 
@@ -579,7 +594,7 @@ function Cropper(props: CropperProps) {
 		}
 	}, [crop, zoom, rotation, store, allowOverflow])
 
-	const contextValue = React.useMemo<CropperContextValue>(
+	const contextValue = useMemo<CropperContextValue>(
 		() => ({
 			minZoom,
 			maxZoom,
@@ -652,19 +667,19 @@ function CropperImpl(props: CropperImplProps) {
 	})
 
 	const composedRef = useComposedRefs(ref, context.rootRef)
-	const dragStartPositionRef = React.useRef<Point>({ x: 0, y: 0 })
-	const dragStartCropRef = React.useRef<Point>({ x: 0, y: 0 })
-	const contentPositionRef = React.useRef<Point>({ x: 0, y: 0 })
-	const lastPinchDistanceRef = React.useRef(0)
-	const lastPinchRotationRef = React.useRef(0)
-	const rafDragTimeoutRef = React.useRef<number | null>(null)
-	const rafPinchTimeoutRef = React.useRef<number | null>(null)
-	const wheelTimerRef = React.useRef<number | null>(null)
-	const isTouchingRef = React.useRef(false)
-	const gestureZoomStartRef = React.useRef(0)
-	const gestureRotationStartRef = React.useRef(0)
+	const dragStartPositionRef = useRef<Point>({ x: 0, y: 0 })
+	const dragStartCropRef = useRef<Point>({ x: 0, y: 0 })
+	const contentPositionRef = useRef<Point>({ x: 0, y: 0 })
+	const lastPinchDistanceRef = useRef(0)
+	const lastPinchRotationRef = useRef(0)
+	const rafDragTimeoutRef = useRef<number | null>(null)
+	const rafPinchTimeoutRef = useRef<number | null>(null)
+	const wheelTimerRef = useRef<number | null>(null)
+	const isTouchingRef = useRef(false)
+	const gestureZoomStartRef = useRef(0)
+	const gestureRotationStartRef = useRef(0)
 
-	const onRefsCleanup = React.useCallback(() => {
+	const onRefsCleanup = useCallback(() => {
 		if (rafDragTimeoutRef.current) {
 			cancelAnimationFrame(rafDragTimeoutRef.current)
 			rafDragTimeoutRef.current = null
@@ -680,7 +695,7 @@ function CropperImpl(props: CropperImplProps) {
 		isTouchingRef.current = false
 	}, [])
 
-	const onCacheCleanup = React.useCallback(() => {
+	const onCacheCleanup = useCallback(() => {
 		if (onPositionClampCache.size > MAX_CACHE_SIZE * 1.5) {
 			onPositionClampCache.clear()
 		}
@@ -689,30 +704,30 @@ function CropperImpl(props: CropperImplProps) {
 		}
 	}, [])
 
-	const getMousePoint = React.useCallback(
-		(event: MouseEvent | React.MouseEvent) => ({
+	const getMousePoint = useCallback(
+		(event: MouseEvent | MouseEvent) => ({
 			x: Number(event.clientX),
 			y: Number(event.clientY),
 		}),
 		[]
 	)
 
-	const getTouchPoint = React.useCallback(
-		(touch: Touch | React.Touch) => ({
+	const getTouchPoint = useCallback(
+		(touch: Touch | Touch) => ({
 			x: Number(touch.clientX),
 			y: Number(touch.clientY),
 		}),
 		[]
 	)
 
-	const onContentPositionChange = React.useCallback(() => {
+	const onContentPositionChange = useCallback(() => {
 		if (context.rootRef?.current) {
 			const bounds = context.rootRef.current.getBoundingClientRect()
 			contentPositionRef.current = { x: bounds.left, y: bounds.top }
 		}
 	}, [context.rootRef])
 
-	const getPointOnContent = React.useCallback(
+	const getPointOnContent = useCallback(
 		({ x, y }: Point, contentTopLeft: Point): Point => {
 			if (!context.rootRef?.current) {
 				return { x: 0, y: 0 }
@@ -726,7 +741,7 @@ function CropperImpl(props: CropperImplProps) {
 		[context.rootRef]
 	)
 
-	const getPointOnMedia = React.useCallback(
+	const getPointOnMedia = useCallback(
 		({ x, y }: Point) => {
 			return {
 				x: (x + crop.x) / zoom,
@@ -736,7 +751,7 @@ function CropperImpl(props: CropperImplProps) {
 		[crop, zoom]
 	)
 
-	const recomputeCropPosition = React.useCallback(() => {
+	const recomputeCropPosition = useCallback(() => {
 		if (!cropSize || !mediaSize) return
 
 		const newPosition = !context.allowOverflow ? onPositionClamp(crop, mediaSize, cropSize, zoom, rotation) : crop
@@ -746,7 +761,7 @@ function CropperImpl(props: CropperImplProps) {
 		}
 	}, [cropSize, mediaSize, context.allowOverflow, crop, zoom, rotation, store])
 
-	const onZoomChange = React.useCallback(
+	const onZoomChange = useCallback(
 		(newZoom: number, point: Point, shouldUpdatePosition = true) => {
 			if (!cropSize || !mediaSize) return
 
@@ -788,7 +803,7 @@ function CropperImpl(props: CropperImplProps) {
 		]
 	)
 
-	const onDragStart = React.useCallback(
+	const onDragStart = useCallback(
 		({ x, y }: Point) => {
 			dragStartPositionRef.current = { x, y }
 			dragStartCropRef.current = { ...crop }
@@ -797,7 +812,7 @@ function CropperImpl(props: CropperImplProps) {
 		[crop, store]
 	)
 
-	const onDrag = React.useCallback(
+	const onDrag = useCallback(
 		({ x, y }: Point) => {
 			if (rafDragTimeoutRef.current) {
 				cancelAnimationFrame(rafDragTimeoutRef.current)
@@ -832,9 +847,9 @@ function CropperImpl(props: CropperImplProps) {
 		[cropSize, mediaSize, context.allowOverflow, zoom, rotation, store]
 	)
 
-	const onMouseMove = React.useCallback((event: MouseEvent) => onDrag(getMousePoint(event)), [getMousePoint, onDrag])
+	const onMouseMove = useCallback((event: MouseEvent) => onDrag(getMousePoint(event)), [getMousePoint, onDrag])
 
-	const onTouchMove = React.useCallback(
+	const onTouchMove = useCallback(
 		(event: TouchEvent) => {
 			event.preventDefault()
 			if (event.touches.length === 2) {
@@ -879,7 +894,7 @@ function CropperImpl(props: CropperImplProps) {
 		[getTouchPoint, onDrag, zoom, onZoomChange, rotation, store]
 	)
 
-	const onGestureChange = React.useCallback(
+	const onGestureChange = useCallback(
 		(event: GestureEvent) => {
 			event.preventDefault()
 			if (isTouchingRef.current) {
@@ -896,12 +911,12 @@ function CropperImpl(props: CropperImplProps) {
 		[onZoomChange, store]
 	)
 
-	const onGestureEnd = React.useCallback(() => {
+	const onGestureEnd = useCallback(() => {
 		document.removeEventListener("gesturechange", onGestureChange as EventListener)
 		document.removeEventListener("gestureend", onGestureEnd as EventListener)
 	}, [onGestureChange])
 
-	const onGestureStart = React.useCallback(
+	const onGestureStart = useCallback(
 		(event: GestureEvent) => {
 			event.preventDefault()
 			document.addEventListener("gesturechange", onGestureChange as EventListener)
@@ -912,16 +927,16 @@ function CropperImpl(props: CropperImplProps) {
 		[zoom, rotation, onGestureChange, onGestureEnd]
 	)
 
-	const onSafariZoomPrevent = React.useCallback((event: Event) => event.preventDefault(), [])
+	const onSafariZoomPrevent = useCallback((event: Event) => event.preventDefault(), [])
 
-	const onEventsCleanup = React.useCallback(() => {
+	const onEventsCleanup = useCallback(() => {
 		document.removeEventListener("mousemove", onMouseMove)
 		document.removeEventListener("touchmove", onTouchMove)
 		document.removeEventListener("gesturechange", onGestureChange as EventListener)
 		document.removeEventListener("gestureend", onGestureEnd as EventListener)
 	}, [onMouseMove, onTouchMove, onGestureChange, onGestureEnd])
 
-	const onDragStopped = React.useCallback(() => {
+	const onDragStopped = useCallback(() => {
 		isTouchingRef.current = false
 		store.setState("isDragging", false)
 		onRefsCleanup()
@@ -930,7 +945,7 @@ function CropperImpl(props: CropperImplProps) {
 		onEventsCleanup()
 	}, [store, onEventsCleanup, onRefsCleanup])
 
-	const getWheelDelta = React.useCallback((event: WheelEvent) => {
+	const getWheelDelta = useCallback((event: WheelEvent) => {
 		let deltaX = event.deltaX
 		let deltaY = event.deltaY
 		let deltaZ = event.deltaZ
@@ -948,7 +963,7 @@ function CropperImpl(props: CropperImplProps) {
 		return { deltaX, deltaY, deltaZ }
 	}, [])
 
-	const onWheelZoom = React.useCallback(
+	const onWheelZoom = useCallback(
 		(event: WheelEvent) => {
 			propsRef.current.onWheelZoom?.(event)
 			if (event.defaultPrevented) return
@@ -982,8 +997,8 @@ function CropperImpl(props: CropperImplProps) {
 		[propsRef, getMousePoint, zoom, context.zoomSpeed, onZoomChange, getWheelDelta, store]
 	)
 
-	const onKeyUp = React.useCallback(
-		(event: React.KeyboardEvent<RootElement>) => {
+	const onKeyUp = useCallback(
+		(event: KeyboardEvent<RootElement>) => {
 			propsRef.current.onKeyUp?.(event)
 			if (event.defaultPrevented) return
 
@@ -997,8 +1012,8 @@ function CropperImpl(props: CropperImplProps) {
 		[propsRef, store]
 	)
 
-	const onKeyDown = React.useCallback(
-		(event: React.KeyboardEvent<RootElement>) => {
+	const onKeyDown = useCallback(
+		(event: KeyboardEvent<RootElement>) => {
 			propsRef.current.onKeyDown?.(event)
 			if (event.defaultPrevented || !cropSize || !mediaSize) return
 
@@ -1034,8 +1049,8 @@ function CropperImpl(props: CropperImplProps) {
 		[propsRef, cropSize, mediaSize, context.keyboardStep, context.allowOverflow, crop, zoom, rotation, store]
 	)
 
-	const onMouseDown = React.useCallback(
-		(event: React.MouseEvent<RootElement>) => {
+	const onMouseDown = useCallback(
+		(event: MouseEvent<RootElement>) => {
 			propsRef.current.onMouseDown?.(event)
 			if (event.defaultPrevented) return
 
@@ -1048,8 +1063,8 @@ function CropperImpl(props: CropperImplProps) {
 		[propsRef, getMousePoint, onDragStart, onDragStopped, onMouseMove, onContentPositionChange]
 	)
 
-	const onTouchStart = React.useCallback(
-		(event: React.TouchEvent<RootElement>) => {
+	const onTouchStart = useCallback(
+		(event: TouchEvent<RootElement>) => {
 			propsRef.current.onTouchStart?.(event)
 			if (event.defaultPrevented) return
 
@@ -1077,7 +1092,7 @@ function CropperImpl(props: CropperImplProps) {
 		[propsRef, onDragStopped, onTouchMove, onContentPositionChange, getTouchPoint, onDragStart]
 	)
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const content = context.rootRef?.current
 		if (!content) return
 
@@ -1098,7 +1113,7 @@ function CropperImpl(props: CropperImplProps) {
 		}
 	}, [context.rootRef, context.preventScrollZoom, onWheelZoom, onRefsCleanup, onSafariZoomPrevent, onGestureStart])
 
-	React.useEffect(() => {
+	useEffect(() => {
 		return () => {
 			onRefsCleanup()
 			onCacheCleanup()
@@ -1140,7 +1155,7 @@ const cropperMediaVariants = cva("will-change-transform", {
 })
 
 interface UseMediaComputationProps<T extends HTMLImageElement | HTMLVideoElement> {
-	mediaRef: React.RefObject<T | null>
+	mediaRef: RefObject<T | null>
 	context: CropperContextValue
 	store: Store
 	rotation: number
@@ -1154,7 +1169,7 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
 	rotation,
 	getNaturalDimensions,
 }: UseMediaComputationProps<T>) {
-	const computeSizes = React.useCallback(() => {
+	const computeSizes = useCallback(() => {
 		const media = mediaRef.current
 		const content = context.rootRef?.current
 		if (!media || !content) return
@@ -1263,7 +1278,7 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
 	return { computeSizes }
 }
 
-interface CropperImageProps extends React.ComponentProps<"img">, VariantProps<typeof cropperMediaVariants> {
+interface CropperImageProps extends ComponentProps<"img">, VariantProps<typeof cropperMediaVariants> {
 	asChild?: boolean
 	snapPixels?: boolean
 }
@@ -1277,10 +1292,10 @@ function CropperImage(props: CropperImageProps) {
 	const zoom = useStore((state) => state.zoom)
 	const rotation = useStore((state) => state.rotation)
 
-	const imageRef = React.useRef<HTMLImageElement>(null)
+	const imageRef = useRef<HTMLImageElement>(null)
 	const composedRef = useComposedRefs(ref, imageRef)
 
-	const getNaturalDimensions = React.useCallback(
+	const getNaturalDimensions = useCallback(
 		(image: HTMLImageElement) => ({
 			width: image.naturalWidth,
 			height: image.naturalHeight,
@@ -1296,23 +1311,23 @@ function CropperImage(props: CropperImageProps) {
 		getNaturalDimensions,
 	})
 
-	const onMediaLoad = React.useCallback(() => {
+	const onMediaLoad = useCallback(() => {
 		const image = imageRef.current
 		if (!image) return
 
 		computeSizes()
 
-		onLoad?.(new Event("load") as unknown as React.SyntheticEvent<HTMLImageElement>)
+		onLoad?.(new Event("load") as unknown as SyntheticEvent<HTMLImageElement>)
 	}, [computeSizes, onLoad])
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const image = imageRef.current
 		if (image?.complete && image.naturalWidth > 0) {
 			onMediaLoad()
 		}
 	}, [onMediaLoad])
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const content = context.rootRef?.current
 		if (!content) return
 
@@ -1382,7 +1397,7 @@ function CropperImage(props: CropperImageProps) {
 	)
 }
 
-interface CropperVideoProps extends React.ComponentProps<"video">, VariantProps<typeof cropperMediaVariants> {
+interface CropperVideoProps extends ComponentProps<"video">, VariantProps<typeof cropperMediaVariants> {
 	asChild?: boolean
 	snapPixels?: boolean
 }
@@ -1396,10 +1411,10 @@ function CropperVideo(props: CropperVideoProps) {
 	const zoom = useStore((state) => state.zoom)
 	const rotation = useStore((state) => state.rotation)
 
-	const videoRef = React.useRef<HTMLVideoElement>(null)
+	const videoRef = useRef<HTMLVideoElement>(null)
 	const composedRef = useComposedRefs(ref, videoRef)
 
-	const getNaturalDimensions = React.useCallback(
+	const getNaturalDimensions = useCallback(
 		(video: HTMLVideoElement) => ({
 			width: video.videoWidth,
 			height: video.videoHeight,
@@ -1415,16 +1430,16 @@ function CropperVideo(props: CropperVideoProps) {
 		getNaturalDimensions,
 	})
 
-	const onMediaLoad = React.useCallback(() => {
+	const onMediaLoad = useCallback(() => {
 		const video = videoRef.current
 		if (!video) return
 
 		computeSizes()
 
-		onLoadedMetadata?.(new Event("loadedmetadata") as unknown as React.SyntheticEvent<HTMLVideoElement>)
+		onLoadedMetadata?.(new Event("loadedmetadata") as unknown as SyntheticEvent<HTMLVideoElement>)
 	}, [computeSizes, onLoadedMetadata])
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const content = context.rootRef?.current
 		if (!content) return
 

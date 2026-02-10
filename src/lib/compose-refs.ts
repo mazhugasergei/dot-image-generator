@@ -1,5 +1,3 @@
-import React from "react"
-
 type PossibleRef<T> = React.Ref<T> | undefined
 
 /**

@@ -14,7 +14,24 @@ import {
 	FileTextIcon,
 	FileVideoIcon,
 } from "lucide-react"
-import React from "react"
+import {
+	ChangeEvent,
+	ClipboardEvent,
+	ComponentProps,
+	createContext,
+	DragEvent,
+	KeyboardEvent,
+	MouseEvent,
+	ReactNode,
+	RefObject,
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useSyncExternalStore,
+} from "react"
 
 const ROOT_NAME = "FileUpload"
 const DROPZONE_NAME = "FileUploadDropzone"
@@ -101,10 +118,10 @@ type Store = {
 	subscribe: (listener: () => void) => () => void
 }
 
-const StoreContext = React.createContext<Store | null>(null)
+const StoreContext = createContext<Store | null>(null)
 
 function useStoreContext(consumerName: string) {
-	const context = React.useContext(StoreContext)
+	const context = useContext(StoreContext)
 	if (!context) {
 		throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``)
 	}
@@ -116,7 +133,7 @@ function useStore<T>(selector: (state: StoreState) => T): T {
 
 	const lastValueRef = useLazyRef<{ value: T; state: StoreState } | null>(() => null)
 
-	const getSnapshot = React.useCallback(() => {
+	const getSnapshot = useCallback(() => {
 		const state = store.getState()
 		const prevValue = lastValueRef.current
 
@@ -129,7 +146,7 @@ function useStore<T>(selector: (state: StoreState) => T): T {
 		return nextValue
 	}, [store, selector, lastValueRef])
 
-	return React.useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot)
+	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot)
 }
 
 interface FileUploadContextValue {
@@ -139,21 +156,21 @@ interface FileUploadContextValue {
 	labelId: string
 	disabled: boolean
 	dir: Direction
-	inputRef: React.RefObject<HTMLInputElement | null>
+	inputRef: RefObject<HTMLInputElement | null>
 	urlCache: WeakMap<File, string>
 }
 
-const FileUploadContext = React.createContext<FileUploadContextValue | null>(null)
+const FileUploadContext = createContext<FileUploadContextValue | null>(null)
 
 function useFileUploadContext(consumerName: string) {
-	const context = React.useContext(FileUploadContext)
+	const context = useContext(FileUploadContext)
 	if (!context) {
 		throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``)
 	}
 	return context
 }
 
-interface FileUploadProps extends Omit<React.ComponentProps<"div">, "defaultValue" | "onChange"> {
+interface FileUploadProps extends Omit<ComponentProps<"div">, "defaultValue" | "onChange"> {
 	value?: File[]
 	defaultValue?: File[]
 	onValueChange?: (files: File[]) => void
@@ -208,16 +225,16 @@ function FileUpload(props: FileUploadProps) {
 		...rootProps
 	} = props
 
-	const inputId = React.useId()
-	const dropzoneId = React.useId()
-	const listId = React.useId()
-	const labelId = React.useId()
+	const inputId = useId()
+	const dropzoneId = useId()
+	const listId = useId()
+	const labelId = useId()
 
 	const dir = useDirection(dirProp)
 	const listeners = useLazyRef(() => new Set<() => void>()).current
 	const files = useLazyRef<Map<File, FileState>>(() => new Map()).current
 	const urlCache = useLazyRef(() => new WeakMap<File, string>()).current
-	const inputRef = React.useRef<HTMLInputElement>(null)
+	const inputRef = useRef<HTMLInputElement>(null)
 	const isControlled = value !== undefined
 
 	const propsRef = useAsRef({
@@ -229,7 +246,7 @@ function FileUpload(props: FileUploadProps) {
 		onUpload,
 	})
 
-	const store = React.useMemo<Store>(() => {
+	const store = useMemo<Store>(() => {
 		let state: StoreState = {
 			files,
 			dragOver: false,
@@ -371,7 +388,7 @@ function FileUpload(props: FileUploadProps) {
 		}
 	}, [listeners, files, invalid, propsRef, urlCache])
 
-	const acceptTypes = React.useMemo(() => accept?.split(",").map((t) => t.trim()) ?? null, [accept])
+	const acceptTypes = useMemo(() => accept?.split(",").map((t) => t.trim()) ?? null, [accept])
 
 	const onProgress = useLazyRef(() => {
 		let frame = 0
@@ -388,7 +405,7 @@ function FileUpload(props: FileUploadProps) {
 		}
 	}).current
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (isControlled) {
 			store.dispatch({ type: "SET_FILES", files: value })
 		} else if (defaultValue && defaultValue.length > 0 && !store.getState().files.size) {
@@ -396,7 +413,7 @@ function FileUpload(props: FileUploadProps) {
 		}
 	}, [value, defaultValue, isControlled, store])
 
-	React.useEffect(() => {
+	useEffect(() => {
 		return () => {
 			for (const file of files.keys()) {
 				const cachedUrl = urlCache.get(file)
@@ -407,7 +424,7 @@ function FileUpload(props: FileUploadProps) {
 		}
 	}, [files, urlCache])
 
-	const onFilesUpload = React.useCallback(
+	const onFilesUpload = useCallback(
 		async (files: File[]) => {
 			try {
 				for (const file of files) {
@@ -447,7 +464,7 @@ function FileUpload(props: FileUploadProps) {
 		[store, propsRef, onProgress]
 	)
 
-	const onFilesChange = React.useCallback(
+	const onFilesChange = useCallback(
 		(originalFiles: File[]) => {
 			if (disabled) return
 
@@ -563,8 +580,8 @@ function FileUpload(props: FileUploadProps) {
 		[store, isControlled, propsRef, onFilesUpload, maxFiles, acceptTypes, maxSize, disabled]
 	)
 
-	const onInputChange = React.useCallback(
-		(event: React.ChangeEvent<HTMLInputElement>) => {
+	const onInputChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
 			const files = Array.from(event.target.files ?? [])
 			onFilesChange(files)
 			event.target.value = ""
@@ -572,7 +589,7 @@ function FileUpload(props: FileUploadProps) {
 		[onFilesChange]
 	)
 
-	const contextValue = React.useMemo<FileUploadContextValue>(
+	const contextValue = useMemo<FileUploadContextValue>(
 		() => ({
 			dropzoneId,
 			inputId,
@@ -623,7 +640,7 @@ function FileUpload(props: FileUploadProps) {
 	)
 }
 
-interface FileUploadDropzoneProps extends React.ComponentProps<"div"> {
+interface FileUploadDropzoneProps extends ComponentProps<"div"> {
 	asChild?: boolean
 }
 
@@ -656,8 +673,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		onKeyDown: onKeyDownProp,
 	})
 
-	const onClick = React.useCallback(
-		(event: React.MouseEvent<HTMLDivElement>) => {
+	const onClick = useCallback(
+		(event: MouseEvent<HTMLDivElement>) => {
 			propsRef.current.onClick?.(event)
 
 			if (event.defaultPrevented) return
@@ -673,8 +690,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		[context.inputRef, propsRef]
 	)
 
-	const onDragOver = React.useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
+	const onDragOver = useCallback(
+		(event: DragEvent<HTMLDivElement>) => {
 			propsRef.current.onDragOver?.(event)
 
 			if (event.defaultPrevented) return
@@ -685,8 +702,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		[store, propsRef]
 	)
 
-	const onDragEnter = React.useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
+	const onDragEnter = useCallback(
+		(event: DragEvent<HTMLDivElement>) => {
 			propsRef.current.onDragEnter?.(event)
 
 			if (event.defaultPrevented) return
@@ -697,8 +714,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		[store, propsRef]
 	)
 
-	const onDragLeave = React.useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
+	const onDragLeave = useCallback(
+		(event: DragEvent<HTMLDivElement>) => {
 			propsRef.current.onDragLeave?.(event)
 
 			if (event.defaultPrevented) return
@@ -714,8 +731,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		[store, propsRef]
 	)
 
-	const onDrop = React.useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
+	const onDrop = useCallback(
+		(event: DragEvent<HTMLDivElement>) => {
 			propsRef.current.onDrop?.(event)
 
 			if (event.defaultPrevented) return
@@ -738,8 +755,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		[store, context.inputRef, propsRef]
 	)
 
-	const onPaste = React.useCallback(
-		(event: React.ClipboardEvent<HTMLDivElement>) => {
+	const onPaste = useCallback(
+		(event: ClipboardEvent<HTMLDivElement>) => {
 			propsRef.current.onPaste?.(event)
 
 			if (event.defaultPrevented) return
@@ -777,8 +794,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 		[store, context.inputRef, propsRef]
 	)
 
-	const onKeyDown = React.useCallback(
-		(event: React.KeyboardEvent<HTMLDivElement>) => {
+	const onKeyDown = useCallback(
+		(event: KeyboardEvent<HTMLDivElement>) => {
 			propsRef.current.onKeyDown?.(event)
 
 			if (!event.defaultPrevented && (event.key === "Enter" || event.key === " ")) {
@@ -820,7 +837,7 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 	)
 }
 
-interface FileUploadTriggerProps extends React.ComponentProps<"button"> {
+interface FileUploadTriggerProps extends ComponentProps<"button"> {
 	asChild?: boolean
 }
 
@@ -833,8 +850,8 @@ function FileUploadTrigger(props: FileUploadTriggerProps) {
 		onClick: onClickProp,
 	})
 
-	const onClick = React.useCallback(
-		(event: React.MouseEvent<HTMLButtonElement>) => {
+	const onClick = useCallback(
+		(event: MouseEvent<HTMLButtonElement>) => {
 			propsRef.current.onClick?.(event)
 
 			if (event.defaultPrevented) return
@@ -859,7 +876,7 @@ function FileUploadTrigger(props: FileUploadTriggerProps) {
 	)
 }
 
-interface FileUploadListProps extends React.ComponentProps<"div"> {
+interface FileUploadListProps extends ComponentProps<"div"> {
 	orientation?: "horizontal" | "vertical"
 	asChild?: boolean
 	forceMount?: boolean
@@ -904,17 +921,17 @@ interface FileUploadItemContextValue {
 	messageId: string
 }
 
-const FileUploadItemContext = React.createContext<FileUploadItemContextValue | null>(null)
+const FileUploadItemContext = createContext<FileUploadItemContextValue | null>(null)
 
 function useFileUploadItemContext(consumerName: string) {
-	const context = React.useContext(FileUploadItemContext)
+	const context = useContext(FileUploadItemContext)
 	if (!context) {
 		throw new Error(`\`${consumerName}\` must be used within \`${ITEM_NAME}\``)
 	}
 	return context
 }
 
-interface FileUploadItemProps extends React.ComponentProps<"div"> {
+interface FileUploadItemProps extends ComponentProps<"div"> {
 	value: File
 	asChild?: boolean
 }
@@ -922,7 +939,7 @@ interface FileUploadItemProps extends React.ComponentProps<"div"> {
 function FileUploadItem(props: FileUploadItemProps) {
 	const { value, asChild, className, ...itemProps } = props
 
-	const id = React.useId()
+	const id = useId()
 	const statusId = `${id}-status`
 	const nameId = `${id}-name`
 	const sizeId = `${id}-size`
@@ -936,7 +953,7 @@ function FileUploadItem(props: FileUploadItemProps) {
 		return files.indexOf(value) + 1
 	})
 
-	const itemContext = React.useMemo(
+	const itemContext = useMemo(
 		() => ({
 			id,
 			fileState,
@@ -983,8 +1000,8 @@ function FileUploadItem(props: FileUploadItemProps) {
 	)
 }
 
-interface FileUploadItemPreviewProps extends React.ComponentProps<"div"> {
-	render?: (file: File, fallback: () => React.ReactNode) => React.ReactNode
+interface FileUploadItemPreviewProps extends ComponentProps<"div"> {
+	render?: (file: File, fallback: () => ReactNode) => ReactNode
 	asChild?: boolean
 }
 
@@ -994,7 +1011,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
 	const itemContext = useFileUploadItemContext(ITEM_PREVIEW_NAME)
 	const context = useFileUploadContext(ITEM_PREVIEW_NAME)
 
-	const getDefaultRender = React.useCallback(
+	const getDefaultRender = useCallback(
 		(file: File) => {
 			if (itemContext.fileState?.file.type.startsWith("image/")) {
 				let url = context.urlCache.get(file)
@@ -1014,7 +1031,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
 		[itemContext.fileState?.file.type, context.urlCache]
 	)
 
-	const onPreviewRender = React.useCallback(
+	const onPreviewRender = useCallback(
 		(file: File) => {
 			if (render) {
 				return render(file, () => getDefaultRender(file))
@@ -1045,7 +1062,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
 	)
 }
 
-interface FileUploadItemMetadataProps extends React.ComponentProps<"div"> {
+interface FileUploadItemMetadataProps extends ComponentProps<"div"> {
 	asChild?: boolean
 	size?: "default" | "sm"
 }
@@ -1091,7 +1108,7 @@ function FileUploadItemMetadata(props: FileUploadItemMetadataProps) {
 		</ItemMetadataPrimitive>
 	)
 }
-interface FileUploadItemProgressProps extends React.ComponentProps<"div"> {
+interface FileUploadItemProgressProps extends ComponentProps<"div"> {
 	variant?: "linear" | "circular" | "fill"
 	size?: number
 	asChild?: boolean
@@ -1198,7 +1215,7 @@ function FileUploadItemProgress(props: FileUploadItemProgressProps) {
 	}
 }
 
-interface FileUploadItemDeleteProps extends React.ComponentProps<"button"> {
+interface FileUploadItemDeleteProps extends ComponentProps<"button"> {
 	asChild?: boolean
 }
 
@@ -1208,8 +1225,8 @@ function FileUploadItemDelete(props: FileUploadItemDeleteProps) {
 	const store = useStoreContext(ITEM_DELETE_NAME)
 	const itemContext = useFileUploadItemContext(ITEM_DELETE_NAME)
 
-	const onClick = React.useCallback(
-		(event: React.MouseEvent<HTMLButtonElement>) => {
+	const onClick = useCallback(
+		(event: MouseEvent<HTMLButtonElement>) => {
 			onClickProp?.(event)
 
 			if (!itemContext.fileState || event.defaultPrevented) return
@@ -1238,7 +1255,7 @@ function FileUploadItemDelete(props: FileUploadItemDeleteProps) {
 	)
 }
 
-interface FileUploadClearProps extends React.ComponentProps<"button"> {
+interface FileUploadClearProps extends ComponentProps<"button"> {
 	forceMount?: boolean
 	asChild?: boolean
 }
@@ -1252,8 +1269,8 @@ function FileUploadClear(props: FileUploadClearProps) {
 
 	const isDisabled = disabled || context.disabled
 
-	const onClick = React.useCallback(
-		(event: React.MouseEvent<HTMLButtonElement>) => {
+	const onClick = useCallback(
+		(event: MouseEvent<HTMLButtonElement>) => {
 			onClickProp?.(event)
 
 			if (event.defaultPrevented) return

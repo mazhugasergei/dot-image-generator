@@ -1,9 +1,8 @@
 "use client"
 
+import { CustomSlider } from "@/components/dot-image-generator/custom-slider"
 import { Button } from "@/components/ui/button"
 import { Cropper, CropperArea, CropperImage } from "@/components/ui/cropper"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
 import { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { RotateCcwIcon } from "lucide-react"
@@ -64,28 +63,24 @@ export function CropperControlled({
 				<CropperArea />
 			</Cropper>
 			<div className="flex flex-col items-center gap-4 border-t p-4 sm:flex-row">
-				<div className="flex w-full flex-col gap-2.5">
-					<Label htmlFor={`${id}-zoom`}>Zoom: {zoom.toFixed(2)}</Label>
-					<Slider
-						id={`${id}-zoom`}
-						value={[zoom]}
-						onValueChange={(value) => updateConfig({ zoom: value[0] ?? 1 })}
-						min={1}
-						max={3}
-						step={0.1}
-					/>
-				</div>
-				<div className="flex w-full flex-col gap-2.5">
-					<Label htmlFor={`${id}-rotation`}>Rotation: {rotation.toFixed(0)}°</Label>
-					<Slider
-						id={`${id}-rotation`}
-						value={[rotation]}
-						onValueChange={(value) => updateConfig({ rotation: value[0] ?? 0 })}
-						min={-180}
-						max={180}
-						step={1}
-					/>
-				</div>
+				<CustomSlider
+					id={`${id}-zoom`}
+					label="Zoom"
+					value={[zoom]}
+					onValueChange={(value) => updateConfig({ zoom: value[0] ?? 1 })}
+					min={1}
+					max={3}
+					step={0.1}
+				/>
+				<CustomSlider
+					id={`${id}-rotation`}
+					label="Rotation"
+					value={[rotation]}
+					onValueChange={(value) => updateConfig({ rotation: value[0] ?? 0 })}
+					min={-180}
+					max={180}
+					step={1}
+				/>
 			</div>
 			<Button variant="outline" size="icon" className="absolute top-3 right-2 size-8" onClick={onCropReset}>
 				<RotateCcwIcon />
