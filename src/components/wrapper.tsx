@@ -9,7 +9,7 @@ interface Props extends ComponentProps<"div"> {
 export const SectionWrapper = ({ children, className, innerStyle, innerClassName, ...props }: Props) => {
 	return (
 		<div className={cn("grid md:px-3", className)} {...props}>
-			<Wrapper style={innerStyle} className={cn("p-4 md:border-x", innerClassName)}>
+			<Wrapper style={innerStyle} className={cn("bg-background p-4 md:border-x", innerClassName)}>
 				{children}
 			</Wrapper>
 		</div>
