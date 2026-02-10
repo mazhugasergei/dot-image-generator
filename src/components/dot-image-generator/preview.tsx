@@ -1,4 +1,4 @@
-import { ELEMENT_SIZE } from "@/lib/constants"
+import { DOT_SIZE } from "@/lib/constants"
 import { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { applyColorAdjustments } from "@/utils/colors"
@@ -10,6 +10,8 @@ interface Props extends ComponentProps<"div"> {
 	config: PreviewConfig
 	updateConfig: (value: Partial<PreviewConfig>) => void
 	maxBorderRadius: number
+	containerWidth: number
+	containerHeight: number
 }
 
 export function Preview({
@@ -18,21 +20,35 @@ export function Preview({
 	updateConfig,
 	className,
 	maxBorderRadius,
+	containerWidth,
+	containerHeight,
 	...props
 }: Props) {
-	const spacing = ELEMENT_SIZE + gap
-	const totalWidth = cols * ELEMENT_SIZE + (cols - 1) * gap
-	const totalHeight = rows * ELEMENT_SIZE + (rows - 1) * gap
-	const actualBorderRadius = borderRadius * maxBorderRadius
+	const spacing = DOT_SIZE + gap
+	const dotGridWidth = cols * DOT_SIZE + (cols - 1) * gap
+	const dotGridHeight = rows * DOT_SIZE + (rows - 1) * gap
+	const containerBorderRadius = borderRadius * maxBorderRadius
+
+	// Calculate actual dot dimensions based on container and grid layout
+	const actualDotWidth = containerWidth > 0 ? (containerWidth - (cols - 1) * gap) / cols : DOT_SIZE
+	const actualDotHeight = containerHeight > 0 ? (containerHeight - (rows - 1) * gap) / rows : DOT_SIZE
 
 	const visibleCells: Array<{ row: number; col: number }> = []
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
-			const x = col * spacing
-			const y = row * spacing
+			const dotPositionX = col * (actualDotWidth + gap)
+			const dotPositionY = row * (actualDotHeight + gap)
 			if (
-				actualBorderRadius === 0 ||
-				isRectInsideRoundedRect(x, y, ELEMENT_SIZE, ELEMENT_SIZE, totalWidth, totalHeight, actualBorderRadius)
+				containerBorderRadius === 0 ||
+				isRectInsideRoundedRect({
+					dotPositionX,
+					dotPositionY,
+					dotWidth: actualDotWidth,
+					dotHeight: actualDotHeight,
+					containerWidth,
+					containerHeight,
+					containerBorderRadius,
+				})
 			) {
 				visibleCells.push({ row, col })
 			}
@@ -59,14 +75,14 @@ export function Preview({
 			if (!svg) return { x: 0, y: 0 }
 
 			const svgRect = svg.getBoundingClientRect()
-			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
+			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, dotGridWidth, dotGridHeight]
 
 			const x = ((screenX - svgRect.left) / svgRect.width) * viewBox[2]
 			const y = ((screenY - svgRect.top) / svgRect.height) * viewBox[3]
 
 			return { x, y }
 		},
-		[totalWidth, totalHeight]
+		[dotGridWidth, dotGridHeight]
 	)
 
 	// handle mouse/touch drag
@@ -92,7 +108,7 @@ export function Preview({
 			if (!svg) return
 
 			const svgRect = svg.getBoundingClientRect()
-			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
+			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, dotGridWidth, dotGridHeight]
 
 			// convert pixel movement to canvas units
 			const scaleX = viewBox[2] / svgRect.width
@@ -108,8 +124,8 @@ export function Preview({
 
 			// calculate transformed image dimensions for limits
 			// base image dimensions (assuming image covers the full canvas)
-			const imageWidth = totalWidth
-			const imageHeight = totalHeight
+			const imageWidth = dotGridWidth
+			const imageHeight = dotGridHeight
 
 			// apply zoom to dimensions
 			const scaledWidth = imageWidth * zoom
@@ -126,21 +142,21 @@ export function Preview({
 
 			// calculate drag limits as ±90% of transformed image dimensions
 			// convert to percentage of canvas size
-			const maxNegativeX = ((-rotatedWidth * 0.9) / totalWidth) * 100
-			const maxPositiveX = ((rotatedWidth * 0.9) / totalWidth) * 100
-			const maxNegativeY = ((-rotatedHeight * 0.9) / totalHeight) * 100
-			const maxPositiveY = ((rotatedHeight * 0.9) / totalHeight) * 100
+			const maxNegativeX = ((-rotatedWidth * 0.9) / dotGridWidth) * 100
+			const maxPositiveX = ((rotatedWidth * 0.9) / dotGridWidth) * 100
+			const maxNegativeY = ((-rotatedHeight * 0.9) / dotGridHeight) * 100
+			const maxPositiveY = ((rotatedHeight * 0.9) / dotGridHeight) * 100
 
 			// update crop position with adjusted drag distance and limits
-			const newCropX = Math.max(maxNegativeX, Math.min(maxPositiveX, crop.x + (adjustedDragX / totalWidth) * 100))
-			const newCropY = Math.max(maxNegativeY, Math.min(maxPositiveY, crop.y + (adjustedDragY / totalHeight) * 100))
+			const newCropX = Math.max(maxNegativeX, Math.min(maxPositiveX, crop.x + (adjustedDragX / dotGridWidth) * 100))
+			const newCropY = Math.max(maxNegativeY, Math.min(maxPositiveY, crop.y + (adjustedDragY / dotGridHeight) * 100))
 
 			updateConfig({ crop: { x: newCropX, y: newCropY } })
 
 			// update last pointer position for next frame
 			lastPointRef.current = { x: clientX, y: clientY }
 		},
-		[updateConfig, crop, totalWidth, totalHeight, zoom, rotation]
+		[updateConfig, crop, dotGridWidth, dotGridHeight, zoom, rotation]
 	)
 
 	const handleDragEnd = useCallback(() => {
@@ -254,7 +270,7 @@ export function Preview({
 			if (!svg) return
 
 			const svgRect = svg.getBoundingClientRect()
-			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
+			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, dotGridWidth, dotGridHeight]
 
 			// calculate pointer position in canvas coordinates
 			const pointerX = ((e.clientX - svgRect.left) / svgRect.width) * viewBox[2]
@@ -266,8 +282,8 @@ export function Preview({
 
 			// calculate the offset needed to keep pointer position fixed
 			// for center-based transforms, we need to calculate the offset differently
-			const centerOffsetX = pointerX - totalWidth / 2
-			const centerOffsetY = pointerY - totalHeight / 2
+			const centerOffsetX = pointerX - dotGridWidth / 2
+			const centerOffsetY = pointerY - dotGridHeight / 2
 
 			// calculate how much the offset changes with zoom
 			const zoomRatio = newZoom / zoom
@@ -280,12 +296,12 @@ export function Preview({
 			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
 
 			// apply the offset to current crop position
-			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / totalWidth) * 100))
-			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / totalHeight) * 100))
+			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / dotGridWidth) * 100))
+			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / dotGridHeight) * 100))
 
 			updateConfig({ zoom: newZoom, crop: { x: newCropX, y: newCropY } })
 		},
-		[updateConfig, zoom, crop, totalWidth, totalHeight]
+		[updateConfig, zoom, crop, dotGridWidth, dotGridHeight]
 	)
 
 	useEffect(() => {
@@ -300,7 +316,7 @@ export function Preview({
 			if (!svg) return
 
 			const svgRect = svg.getBoundingClientRect()
-			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, totalWidth, totalHeight]
+			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, dotGridWidth, dotGridHeight]
 
 			// calculate pointer position in canvas coordinates
 			const pointerX = ((e.clientX - svgRect.left) / svgRect.width) * viewBox[2]
@@ -312,8 +328,8 @@ export function Preview({
 
 			// calculate the offset needed to keep pointer position fixed
 			// for center-based transforms, we need to calculate the offset differently
-			const centerOffsetX = pointerX - totalWidth / 2
-			const centerOffsetY = pointerY - totalHeight / 2
+			const centerOffsetX = pointerX - dotGridWidth / 2
+			const centerOffsetY = pointerY - dotGridHeight / 2
 
 			// calculate how much the offset changes with zoom
 			const zoomRatio = newZoom / zoom
@@ -326,8 +342,8 @@ export function Preview({
 			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
 
 			// apply the offset to current crop position
-			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / totalWidth) * 100))
-			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / totalHeight) * 100))
+			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / dotGridWidth) * 100))
+			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / dotGridHeight) * 100))
 
 			updateConfig({ zoom: newZoom, crop: { x: newCropX, y: newCropY } })
 		}
@@ -337,7 +353,7 @@ export function Preview({
 		return () => {
 			container.removeEventListener("wheel", handleWheelEvent)
 		}
-	}, [updateConfig, zoom, crop, totalWidth, totalHeight])
+	}, [updateConfig, zoom, crop, dotGridWidth, dotGridHeight])
 
 	useEffect(() => {
 		const img = new Image()
@@ -345,8 +361,8 @@ export function Preview({
 		img.src = src
 		img.onload = () => {
 			const canvas = document.createElement("canvas")
-			canvas.width = totalWidth
-			canvas.height = totalHeight
+			canvas.width = dotGridWidth
+			canvas.height = dotGridHeight
 			const ctx = canvas.getContext("2d")!
 
 			// Save the original context state
@@ -354,41 +370,41 @@ export function Preview({
 
 			// Apply the same transformation logic as the cropper
 			// Convert percentage crop to pixels (same as cropper does)
-			const cropXPixels = (crop.x / 100) * totalWidth
-			const cropYPixels = (crop.y / 100) * totalHeight
+			const cropXPixels = (crop.x / 100) * dotGridWidth
+			const cropYPixels = (crop.y / 100) * dotGridHeight
 
 			// Apply transformations with rotation as the final step
 			// First translate to center, apply zoom and crop, then rotate
-			ctx.translate(totalWidth / 2, totalHeight / 2)
+			ctx.translate(dotGridWidth / 2, dotGridHeight / 2)
 			ctx.scale(zoom, zoom)
-			ctx.translate(-totalWidth / 2, -totalHeight / 2)
+			ctx.translate(-dotGridWidth / 2, -dotGridHeight / 2)
 
 			// Apply crop offset (moves the image within the transformed space)
 			ctx.translate(cropXPixels, cropYPixels)
 
 			// Apply rotation as the final transformation
-			ctx.translate(totalWidth / 2, totalHeight / 2)
+			ctx.translate(dotGridWidth / 2, dotGridHeight / 2)
 			ctx.rotate((rotation * Math.PI) / 180)
-			ctx.translate(-totalWidth / 2, -totalHeight / 2)
+			ctx.translate(-dotGridWidth / 2, -dotGridHeight / 2)
 
 			// calculate dimensions to crop and center image without stretching
 			const imgAspect = img.width / img.height
-			const canvasAspect = totalWidth / totalHeight
+			const canvasAspect = dotGridWidth / dotGridHeight
 
 			let drawWidth, drawHeight, drawX, drawY
 
 			if (imgAspect > canvasAspect) {
 				// image is wider than canvas - fit to height
-				drawHeight = totalHeight
-				drawWidth = totalHeight * imgAspect
-				drawX = (totalWidth - drawWidth) / 2
+				drawHeight = dotGridHeight
+				drawWidth = dotGridHeight * imgAspect
+				drawX = (dotGridWidth - drawWidth) / 2
 				drawY = 0
 			} else {
 				// image is taller than canvas - fit to width
-				drawWidth = totalWidth
-				drawHeight = totalWidth / imgAspect
+				drawWidth = dotGridWidth
+				drawHeight = dotGridWidth / imgAspect
 				drawX = 0
-				drawY = (totalHeight - drawHeight) / 2
+				drawY = (dotGridHeight - drawHeight) / 2
 			}
 
 			ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
@@ -403,7 +419,7 @@ export function Preview({
 				for (let col = 0; col < cols; col++) {
 					const x = col * spacing
 					const y = row * spacing
-					const imageData = ctx.getImageData(x, y, ELEMENT_SIZE, ELEMENT_SIZE)
+					const imageData = ctx.getImageData(x, y, DOT_SIZE, DOT_SIZE)
 					let r = 0,
 						g = 0,
 						b = 0
@@ -428,13 +444,13 @@ export function Preview({
 
 			setColors(cellColors)
 		}
-	}, [src, cols, rows, spacing, ELEMENT_SIZE, totalWidth, totalHeight, brightness, saturation, crop, zoom, rotation])
+	}, [src, cols, rows, spacing, DOT_SIZE, dotGridWidth, dotGridHeight, brightness, saturation, crop, zoom, rotation])
 
 	return (
 		<div data-preview-container ref={containerRef} className={cn("w-full", className)} {...props}>
 			<svg
 				width="100%"
-				viewBox={`0 0 ${totalWidth} ${totalHeight}`}
+				viewBox={`0 0 ${dotGridWidth} ${dotGridHeight}`}
 				preserveAspectRatio="xMidYMid meet"
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
@@ -452,9 +468,9 @@ export function Preview({
 							key={`${row}-${col}`}
 							x={col * spacing}
 							y={row * spacing}
-							width={ELEMENT_SIZE}
-							height={ELEMENT_SIZE}
-							rx={(dotBorderRadius / 2) * ELEMENT_SIZE}
+							width={DOT_SIZE}
+							height={DOT_SIZE}
+							rx={(dotBorderRadius / 2) * DOT_SIZE}
 							fill={color}
 						/>
 					)

@@ -86,7 +86,14 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 			<div className="space-y-6">
 				{files.length > 0 && (
 					<>
-						<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} maxBorderRadius={maxBorderRadius} />
+						<Preview
+							src={imageUrls[0]}
+							config={config}
+							updateConfig={updateConfig}
+							maxBorderRadius={maxBorderRadius}
+							containerWidth={totalWidth}
+							containerHeight={totalHeight}
+						/>
 						<DownloadButton />
 					</>
 				)}

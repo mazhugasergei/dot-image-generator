@@ -1,6 +1,6 @@
 import type { PreviewConfig } from "@/types/config"
 
-export const ELEMENT_SIZE = 30
+export const DOT_SIZE = 30
 
 export const DEFAULT_CONFIG: PreviewConfig = {
 	crop: { x: 0, y: 0 },
