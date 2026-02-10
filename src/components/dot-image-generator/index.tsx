@@ -81,19 +81,16 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 		}
 	}, [config.cols, config.rows, config.lockRatio])
 
-	const updateConfig = (key: keyof PreviewConfig, value: number | boolean) => {
-		setConfig((prev) => {
-			let newConfig = { ...prev, [key]: value }
+	const updateConfig = (value: Partial<PreviewConfig>) => {
+		let res = { ...config, ...value }
 
-			if (prev.lockRatio && (key === "cols" || key === "rows")) {
-				if (key === "cols") newConfig.rows = Math.max(1, Math.round((value as number) / ratio))
-				else if (key === "rows") newConfig.cols = Math.max(1, Math.round((value as number) * ratio))
-			} else if (key === "lockRatio" && value === true) {
-				if (prev.rows > 0) setRatio(prev.cols / prev.rows)
-			}
+		// apply aspect ratio logic if cols or rows change and ratio is locked
+		if (config.lockRatio && (value.cols || value.rows)) {
+			if (value.cols) res.rows = Math.max(1, Math.round(value.cols / ratio))
+			else if (value.rows) res.cols = Math.max(1, Math.round(value.rows * ratio))
+		}
 
-			return newConfig
-		})
+		setConfig(res)
 	}
 
 	const handleReset = () => setConfig(DEFAULT_CONFIG)
@@ -108,17 +105,11 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 		<div {...props} className={cn("flex w-full max-w-md flex-col items-center gap-10", props.className)}>
 			<FileUpload files={files} onFilesChange={setFiles} />
 
-			{/* <div>
-				<pre>{JSON.stringify(config, null, 2)}</pre>
-			</div> */}
+			{/* <pre>{JSON.stringify(config, null, 2)}</pre> */}
 
 			{files.length > 0 && (
 				<>
-					<CropperControlled
-						imageSrc={imageUrls[0]}
-						config={config}
-						updateConfig={(value) => setConfig({ ...config, ...value })}
-					/>
+					<CropperControlled imageSrc={imageUrls[0]} config={config} updateConfig={updateConfig} />
 
 					<Preview src={imageUrls[0]} config={config} />
 
@@ -126,7 +117,7 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 
 					<ConfigControls
 						config={config}
-						updateConfig={(value) => setConfig({ ...config, ...value })}
+						updateConfig={updateConfig}
 						maxBorderRadius={maxBorderRadius}
 						onReset={handleReset}
 						className="rounded-lg border"
