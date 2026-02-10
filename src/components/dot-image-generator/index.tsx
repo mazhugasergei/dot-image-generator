@@ -9,7 +9,7 @@ import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { ComponentProps, useEffect, useState } from "react"
 
-export function DotImageGenerator(props: ComponentProps<"div">) {
+export function DotImageGenerator({ className, ...props }: ComponentProps<"div">) {
 	const [files, setFiles] = useState<File[]>([])
 	const [imageUrls, setImageUrls] = useState<string[]>([])
 	const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null)
@@ -86,17 +86,26 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 	const handleReset = () => setConfig(DEFAULT_CONFIG)
 
 	return (
-		<div {...props} className={cn("flex w-full max-w-md flex-col items-center gap-10", props.className)}>
-			<FileUpload files={files} onFilesChange={setFiles} />
+		<div
+			className={cn(
+				"grid w-full items-start gap-10 max-lg:max-w-md",
+				files.length > 0 ? "lg:grid-cols-2" : "max-w-lg",
+				className
+			)}
+			{...props}
+		>
+			<div className="space-y-6">
+				{files.length > 0 && (
+					<>
+						<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} />
+						<DownloadButton />
+					</>
+				)}
+			</div>
 
-			{/* <pre>{JSON.stringify(config, null, 2)}</pre> */}
-
-			{files.length > 0 && (
-				<>
-					<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} />
-
-					<DownloadButton className="w-full" />
-
+			<div className="space-y-6">
+				<FileUpload files={files} onFilesChange={setFiles} />
+				{files.length > 0 && (
 					<ConfigControls
 						config={config}
 						updateConfig={updateConfig}
@@ -104,8 +113,8 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 						onReset={handleReset}
 						className="rounded-lg border"
 					/>
-				</>
-			)}
+				)}
+			</div>
 		</div>
 	)
 }

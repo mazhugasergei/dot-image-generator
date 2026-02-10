@@ -11,17 +11,18 @@ import {
 	FileUploadList,
 	FileUploadTrigger,
 } from "@/components/ui/file-upload"
+import { cn } from "@/utils"
 import { Upload, X } from "lucide-react"
-import { useCallback } from "react"
+import { ComponentProps, useCallback } from "react"
 
 import { toast } from "sonner"
 
-interface FileUploadProps {
+interface Props extends ComponentProps<typeof FileUploadComponent> {
 	files: File[]
 	onFilesChange: (files: File[]) => void
 }
 
-export function FileUpload({ files, onFilesChange }: FileUploadProps) {
+export function FileUpload({ files, onFilesChange, className, ...props }: Props) {
 	const onFileValidate = useCallback(
 		(file: File): string | null => {
 			// Validate max files
@@ -59,7 +60,8 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
 			onFileReject={onFileReject}
 			accept="image/*"
 			maxFiles={1}
-			className="w-full"
+			className={cn("w-full", className)}
+			{...props}
 		>
 			{!files.length && (
 				<FileUploadDropzone>
