@@ -1,7 +1,6 @@
 "use client"
 
 import { ConfigControls } from "@/components/dot-image-generator/config-controls"
-import { CropperControlled } from "@/components/dot-image-generator/cropper-controlled"
 import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { FileUpload } from "@/components/dot-image-generator/file-upload"
 import { Preview } from "@/components/dot-image-generator/preview"
@@ -101,8 +100,6 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 
 			{files.length > 0 && (
 				<>
-					<CropperControlled imageSrc={imageUrls[0]} config={config} updateConfig={updateConfig} />
-
 					<Preview src={imageUrls[0]} config={config} />
 
 					<DownloadButton onDownload={handleDownload} disabled={!imageUrls[0]} className="w-full" />
