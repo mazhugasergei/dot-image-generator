@@ -11,7 +11,7 @@ import { useRef } from "react"
 
 export interface Props extends React.HTMLAttributes<HTMLDivElement> {
 	config: PreviewConfig
-	updateConfig: (key: keyof PreviewConfig, value: number | boolean) => void
+	updateConfig: (value: Partial<PreviewConfig>) => void
 	maxBorderRadius: number
 	onReset?: () => void
 }
@@ -20,7 +20,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 	const lastValues = useRef({ cols: config.cols, rows: config.rows })
 
 	const handleReset = () => {
-		Object.entries(DEFAULT_CONFIG).forEach(([key, value]) => updateConfig(key as keyof PreviewConfig, value))
+		Object.entries(DEFAULT_CONFIG).forEach(([key, value]) => updateConfig({ [key]: value }))
 		lastValues.current = { cols: DEFAULT_CONFIG.cols, rows: DEFAULT_CONFIG.rows }
 		onReset?.()
 	}
@@ -50,13 +50,13 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								max={MAX_CONFIG_VALUES.cols}
 								step={1}
 								value={[config.cols]}
-								onValueChange={(value) => updateConfig("cols", value[0] ?? 1)}
+								onValueChange={(value) => updateConfig({ cols: value[0] ?? 1 })}
 								onValueCommit={(value) => {
 									const newCols = value[0] ?? 1
 									if (config.lockRatio) {
 										const delta = newCols - lastValues.current.cols
 										const newRows = Math.max(1, lastValues.current.rows + delta)
-										updateConfig("rows", newRows)
+										updateConfig({ rows: newRows })
 										lastValues.current = { cols: newCols, rows: newRows }
 									} else {
 										lastValues.current.cols = newCols
@@ -77,13 +77,13 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								max={MAX_CONFIG_VALUES.rows}
 								step={1}
 								value={[config.rows]}
-								onValueChange={(value) => updateConfig("rows", value[0] ?? 1)}
+								onValueChange={(value) => updateConfig({ rows: value[0] ?? 1 })}
 								onValueCommit={(value) => {
 									const newRows = value[0] ?? 1
 									if (config.lockRatio) {
 										const delta = newRows - lastValues.current.rows
 										const newCols = Math.max(1, lastValues.current.cols + delta)
-										updateConfig("cols", newCols)
+										updateConfig({ cols: newCols })
 										lastValues.current = { cols: newCols, rows: newRows }
 									} else {
 										lastValues.current.rows = newRows
@@ -101,7 +101,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							id="lockRatio"
 							variant="outline"
 							size="sm"
-							onClick={() => updateConfig("lockRatio", !config.lockRatio)}
+							onClick={() => updateConfig({ lockRatio: !config.lockRatio })}
 							className="w-full"
 						>
 							{config.lockRatio ? "Locked" : "Unlocked"}
@@ -114,19 +114,35 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 			<div className="space-y-4 border-t p-4">
 				<h4 className="text-muted-foreground text-sm font-medium">Style</h4>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-					{/* circle radius */}
+					{/* border radius */}
 					<div className="space-y-2">
-						<Label htmlFor="circleRadius">Circle Radius</Label>
+						<Label htmlFor="borderRadius">Border Radius</Label>
 						<div className="flex items-center gap-2">
 							<Slider
-								id="circleRadius"
+								id="borderRadius"
 								min={0}
-								max={MAX_CONFIG_VALUES.circleRadius}
-								step={0.01}
-								value={[config.circleRadius]}
-								onValueChange={(value) => updateConfig("circleRadius", value[0] ?? 0)}
+								max={maxBorderRadius}
+								step={1}
+								value={[config.borderRadius]}
+								onValueChange={(value) => updateConfig({ borderRadius: value[0] ?? 0 })}
 							/>
-							<span className="text-muted-foreground w-12 text-sm">{Math.round(config.circleRadius * 100)}%</span>
+							<span className="text-muted-foreground w-12 text-sm">{config.borderRadius}</span>
+						</div>
+					</div>
+
+					{/* dot border radius */}
+					<div className="space-y-2">
+						<Label htmlFor="dotBorderRadius">Dot Border Radius</Label>
+						<div className="flex items-center gap-2">
+							<Slider
+								id="dotBorderRadius"
+								min={0}
+								max={MAX_CONFIG_VALUES.dotBorderRadius}
+								step={0.01}
+								value={[config.dotBorderRadius]}
+								onValueChange={(value) => updateConfig({ dotBorderRadius: value[0] ?? 0 })}
+							/>
+							<span className="text-muted-foreground w-12 text-sm">{Math.round(config.dotBorderRadius * 100)}%</span>
 						</div>
 					</div>
 
@@ -140,25 +156,9 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								max={MAX_CONFIG_VALUES.gap}
 								step={1}
 								value={[config.gap]}
-								onValueChange={(value) => updateConfig("gap", value[0] ?? 0)}
+								onValueChange={(value) => updateConfig({ gap: value[0] ?? 0 })}
 							/>
 							<span className="text-muted-foreground w-12 text-sm">{config.gap}</span>
-						</div>
-					</div>
-
-					{/* border radius */}
-					<div className="space-y-2">
-						<Label htmlFor="borderRadius">Border Radius</Label>
-						<div className="flex items-center gap-2">
-							<Slider
-								id="borderRadius"
-								min={0}
-								max={maxBorderRadius}
-								step={1}
-								value={[config.borderRadius]}
-								onValueChange={(value) => updateConfig("borderRadius", value[0] ?? 0)}
-							/>
-							<span className="text-muted-foreground w-12 text-sm">{config.borderRadius}</span>
 						</div>
 					</div>
 				</div>
@@ -178,7 +178,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								max={MAX_CONFIG_VALUES.brightness}
 								step={1}
 								value={[config.brightness]}
-								onValueChange={(value) => updateConfig("brightness", value[0] ?? 100)}
+								onValueChange={(value) => updateConfig({ brightness: value[0] ?? 100 })}
 							/>
 							<span className="text-muted-foreground w-12 text-sm">{config.brightness}%</span>
 						</div>
@@ -194,7 +194,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								max={MAX_CONFIG_VALUES.saturation}
 								step={1}
 								value={[config.saturation]}
-								onValueChange={(value) => updateConfig("saturation", value[0] ?? 100)}
+								onValueChange={(value) => updateConfig({ saturation: value[0] ?? 100 })}
 							/>
 							<span className="text-muted-foreground w-12 text-sm">{config.saturation}%</span>
 						</div>

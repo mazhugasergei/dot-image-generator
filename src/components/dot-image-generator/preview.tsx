@@ -1,74 +1,21 @@
-import React from "react"
+import { ELEMENT_SIZE } from "@/lib/constants"
+import { PreviewConfig } from "@/types/config"
+import { cn } from "@/utils"
+import { applyColorAdjustments } from "@/utils/colors"
+import { isRectInsideRoundedRect } from "@/utils/dot"
+import { ComponentProps, useEffect, useState } from "react"
 
-interface PreviewConfig {
-	cols: number
-	rows: number
-	lockRatio: boolean
-	circleRadius: number
-	gap: number
-	borderRadius: number // css px
-	brightness: number
-	saturation: number
-}
-
-interface PreviewProps {
+interface Props extends ComponentProps<"div"> {
 	src: string
 	config: PreviewConfig
-	circleRadius: number
 }
 
-function applyColorAdjustments(
-	r: number,
-	g: number,
-	b: number,
-	brightness: number,
-	saturation: number
-): [number, number, number] {
-	// apply brightness (0-200%)
-	const brightnessFactor = brightness / 100
-	r = Math.min(255, Math.max(0, r * brightnessFactor))
-	g = Math.min(255, Math.max(0, g * brightnessFactor))
-	b = Math.min(255, Math.max(0, b * brightnessFactor))
-
-	// apply saturation (0-200%)
-	const gray = 0.2989 * r + 0.587 * g + 0.114 * b
-	const saturationFactor = saturation / 100
-	r = Math.min(255, Math.max(0, gray + saturationFactor * (r - gray)))
-	g = Math.min(255, Math.max(0, gray + saturationFactor * (g - gray)))
-	b = Math.min(255, Math.max(0, gray + saturationFactor * (b - gray)))
-
-	return [Math.round(r), Math.round(g), Math.round(b)]
-}
-
-function isRectInsideRoundedRect(x: number, y: number, w: number, h: number, W: number, H: number, r: number) {
-	r = Math.min(r, W / 2, H / 2)
-
-	const corners = [
-		{ x, y },
-		{ x: x + w, y },
-		{ x, y: y + h },
-		{ x: x + w, y: y + h },
-	]
-
-	return corners.every(({ x, y }) => {
-		// inside straight edges
-		if (x >= r && x <= W - r) return true
-		if (y >= r && y <= H - r) return true
-
-		// inside corner circles
-		const cx = x < r ? r : W - r
-		const cy = y < r ? r : H - r
-		const dx = x - cx
-		const dy = y - cy
-
-		return dx * dx + dy * dy <= r * r
-	})
-}
-
-export function Preview({ src, config, circleRadius }: PreviewProps) {
-	const { cols, rows, gap, borderRadius, brightness, saturation } = config
-
-	const elementSize = 30
+export function Preview({
+	src,
+	config: { cols, rows, borderRadius, dotBorderRadius, gap, brightness, saturation, crop, zoom, rotation },
+	...props
+}: Props) {
+	const elementSize = ELEMENT_SIZE
 	const spacing = elementSize + gap
 
 	const totalWidth = cols * elementSize + (cols - 1) * gap
@@ -81,8 +28,6 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 	const scaleY = RENDER_HEIGHT / totalHeight
 
 	const borderRadiusVB = Math.min(borderRadius / Math.min(scaleX, scaleY), Math.min(totalWidth, totalHeight) / 2)
-
-	const circleRadiusVB = circleRadius
 
 	const visibleCells: Array<{ row: number; col: number }> = []
 	for (let row = 0; row < rows; row++) {
@@ -99,9 +44,9 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 	}
 
 	// load image and compute average color per cell
-	const [colors, setColors] = React.useState<string[][]>([])
+	const [colors, setColors] = useState<string[][]>([])
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const img = new Image()
 		img.crossOrigin = "anonymous"
 		img.src = src
@@ -110,6 +55,20 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 			canvas.width = totalWidth
 			canvas.height = totalHeight
 			const ctx = canvas.getContext("2d")!
+
+			// Save the original context state
+			ctx.save()
+
+			// Apply the same transformation logic as the cropper
+			// Convert percentage crop to pixels (same as cropper does)
+			const cropXPixels = (crop.x / 100) * totalWidth
+			const cropYPixels = (crop.y / 100) * totalHeight
+
+			// Apply cropper-style transform: translate, rotate, scale
+			// This matches the cropper's CSS transform: translate(x, y) rotate(deg) scale(zoom)
+			ctx.translate(cropXPixels, cropYPixels)
+			ctx.rotate((rotation * Math.PI) / 180)
+			ctx.scale(zoom, zoom)
 
 			// calculate dimensions to crop and center image without stretching
 			const imgAspect = img.width / img.height
@@ -132,6 +91,9 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 			}
 
 			ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+
+			// Restore the original context state
+			ctx.restore()
 
 			const cellColors: string[][] = []
 
@@ -165,10 +127,10 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 
 			setColors(cellColors)
 		}
-	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight, brightness, saturation])
+	}, [src, cols, rows, spacing, elementSize, totalWidth, totalHeight, brightness, saturation, crop, zoom, rotation])
 
 	return (
-		<div className="w-full" data-preview-container>
+		<div {...props} className={cn("w-full", props.className)} data-preview-container>
 			<svg width="100%" viewBox={`0 0 ${totalWidth} ${totalHeight}`} preserveAspectRatio="xMidYMid meet">
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"
@@ -179,7 +141,7 @@ export function Preview({ src, config, circleRadius }: PreviewProps) {
 							y={row * spacing}
 							width={elementSize}
 							height={elementSize}
-							rx={circleRadiusVB}
+							rx={dotBorderRadius * elementSize}
 							fill={color}
 						/>
 					)

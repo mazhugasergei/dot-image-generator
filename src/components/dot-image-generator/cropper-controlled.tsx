@@ -1,41 +1,53 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Cropper, CropperArea, CropperImage, type CropperPoint } from "@/components/ui/cropper"
+import { Cropper, CropperArea, CropperImage } from "@/components/ui/cropper"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { RotateCcwIcon } from "lucide-react"
-import React from "react"
+import { useCallback, useEffect, useId, useState } from "react"
 
 interface CropperControlledProps {
-	imageSrc?: string
+	imageSrc: string
+	config: PreviewConfig
+	updateConfig: (value: Partial<PreviewConfig>) => void
 	className?: string
-	crop: CropperPoint
-	zoom: number
-	rotation: number
-	onCropChange: (crop: CropperPoint) => void
-	onZoomChange: (zoom: number) => void
-	onRotationChange: (rotation: number) => void
 }
 
 export function CropperControlled({
 	imageSrc,
+	config: { crop, zoom, rotation },
+	updateConfig,
 	className,
-	crop,
-	zoom,
-	rotation,
-	onCropChange,
-	onZoomChange,
-	onRotationChange,
 }: CropperControlledProps) {
-	const id = React.useId()
+	const id = useId()
+	const [aspectRatio, setAspectRatio] = useState(1)
 
-	const onCropReset = React.useCallback(() => {
-		onCropChange({ x: 0, y: 0 })
-		onZoomChange(1)
-		onRotationChange(0)
-	}, [onCropChange, onZoomChange, onRotationChange])
+	const onCropReset = useCallback(() => {
+		updateConfig({ crop: { x: 0, y: 0 } })
+		updateConfig({ zoom: 1 })
+		updateConfig({ rotation: 0 })
+	}, [updateConfig])
+
+	useEffect(() => {
+		if (!imageSrc) return
+
+		const img = new Image()
+		img.src = imageSrc
+		img.onload = () => {
+			setAspectRatio(img.width / img.height)
+
+			// Calculate cropper height based on current cropper width and image aspect ratio
+			const cropperElement = document.querySelector('[data-slot="cropper-wrapper"]') as HTMLElement
+			if (cropperElement) {
+				const cropperWidth = cropperElement.clientWidth
+				const calculatedHeight = cropperWidth / aspectRatio
+				cropperElement.style.minHeight = `${calculatedHeight}px`
+			}
+		}
+	}, [imageSrc, aspectRatio])
 
 	return (
 		<div className={cn("relative flex size-full max-w-lg flex-col overflow-hidden rounded-lg border", className)}>
@@ -44,19 +56,11 @@ export function CropperControlled({
 				crop={crop}
 				zoom={zoom}
 				rotation={rotation}
-				onCropChange={onCropChange}
-				onZoomChange={onZoomChange}
-				onRotationChange={onRotationChange}
-				className="min-h-[260px]"
+				onCropChange={(value) => updateConfig({ crop: value })}
+				onZoomChange={(value) => updateConfig({ zoom: value })}
+				onRotationChange={(value) => updateConfig({ rotation: value })}
 			>
-				<CropperImage
-					src={
-						imageSrc ||
-						"https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&h=1080&fit=crop&auto=format&fm=webp&q=80"
-					}
-					alt="Landscape"
-					crossOrigin="anonymous"
-				/>
+				<CropperImage src={imageSrc} alt="Landscape" crossOrigin="anonymous" />
 				<CropperArea />
 			</Cropper>
 			<div className="flex flex-col items-center gap-4 border-t p-4 sm:flex-row">
@@ -65,7 +69,7 @@ export function CropperControlled({
 					<Slider
 						id={`${id}-zoom`}
 						value={[zoom]}
-						onValueChange={(value) => onZoomChange(value[0] ?? 1)}
+						onValueChange={(value) => updateConfig({ zoom: value[0] ?? 1 })}
 						min={1}
 						max={3}
 						step={0.1}
@@ -76,7 +80,7 @@ export function CropperControlled({
 					<Slider
 						id={`${id}-rotation`}
 						value={[rotation]}
-						onValueChange={(value) => onRotationChange(value[0] ?? 0)}
+						onValueChange={(value) => updateConfig({ rotation: value[0] ?? 0 })}
 						min={-180}
 						max={180}
 						step={1}

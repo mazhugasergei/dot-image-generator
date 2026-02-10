@@ -1,24 +1,34 @@
 import type { PreviewConfig } from "@/types/config"
 
+export const ELEMENT_SIZE = 30
+
 export const DEFAULT_CONFIG: PreviewConfig = {
+	crop: { x: 0, y: 0 },
+	zoom: 1,
+	rotation: 0,
+
 	cols: 30,
 	rows: 30,
 	lockRatio: true,
-	circleRadius: 1,
 	gap: 5,
 	borderRadius: 0,
+	dotBorderRadius: 1,
+
 	brightness: 100,
 	saturation: 100,
 }
 
-export const ELEMENT_SIZE = 30
-
 export const MAX_CONFIG_VALUES: Partial<PreviewConfig> = {
+	crop: { x: 0, y: 0 },
+	zoom: 0,
+	rotation: 0,
+
 	cols: 80,
 	rows: 80,
-	circleRadius: 1,
-	gap: 50,
 	borderRadius: 100,
+	dotBorderRadius: 1,
+	gap: 50,
+
 	brightness: 200,
 	saturation: 200,
 } as const
