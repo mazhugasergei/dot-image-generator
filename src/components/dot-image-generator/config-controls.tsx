@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { DEFAULT_CONFIG, MAX_CONFIG_VALUES } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
-import { RotateCcwIcon } from "lucide-react"
+import { LockIcon, LockOpenIcon, RotateCcwIcon } from "lucide-react"
 import { useRef } from "react"
 
 export interface Props extends React.HTMLAttributes<HTMLDivElement> {
@@ -30,7 +30,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 			<div className="flex items-center justify-between p-4">
 				<h3 className="text-lg font-medium">Configuration</h3>
 				{onReset && (
-					<Button variant="outline" size="icon" onClick={handleReset}>
+					<Button variant="outline" size="icon-sm" onClick={handleReset}>
 						<RotateCcwIcon />
 					</Button>
 				)}
@@ -38,7 +38,16 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 
 			{/* transformation controls */}
 			<div className="space-y-4 border-t p-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Transform</h4>
+				<div className="flex items-center justify-between">
+					<h4 className="text-muted-foreground text-sm font-medium">Transform</h4>
+					<Button
+						variant="outline"
+						size="icon-sm"
+						onClick={() => updateConfig({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 })}
+					>
+						<RotateCcwIcon />
+					</Button>
+				</div>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* zoom */}
 					<div className="space-y-2">
@@ -65,25 +74,23 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							onValueChange={(value) => updateConfig({ rotation: value[0] ?? 0 })}
 						/>
 					</div>
-
-					{/* reset transform */}
-					<div className="space-y-2">
-						<Label>Reset</Label>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => updateConfig({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 })}
-							className="w-full"
-						>
-							Reset
-						</Button>
-					</div>
 				</div>
 			</div>
 
 			{/* layout controls */}
 			<div className="space-y-4 border-t p-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Layout</h4>
+				<div className="flex items-center justify-between">
+					<h4 className="text-muted-foreground text-sm font-medium">Layout</h4>
+					<Button
+						variant="outline"
+						size="icon-sm"
+						onClick={() =>
+							updateConfig({ cols: DEFAULT_CONFIG.cols, rows: DEFAULT_CONFIG.rows, ratio: DEFAULT_CONFIG.ratio })
+						}
+					>
+						<RotateCcwIcon />
+					</Button>
+				</div>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* columns */}
 					<div className="flex w-full flex-col gap-2.5">
@@ -143,7 +150,17 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							onClick={() => updateConfig({ ratio: config.ratio ? null : config.cols / config.rows })}
 							className="w-full"
 						>
-							{config.ratio ? "Locked" : "Unlocked"}
+							{config.ratio ? (
+								<>
+									<LockIcon className="size-3" />
+									Locked
+								</>
+							) : (
+								<>
+									<LockOpenIcon className="size-3" />
+									Unlocked
+								</>
+							)}
 						</Button>
 					</div>
 				</div>
@@ -151,7 +168,22 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 
 			{/* style controls */}
 			<div className="space-y-4 border-t p-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Style</h4>
+				<div className="flex items-center justify-between">
+					<h4 className="text-muted-foreground text-sm font-medium">Style</h4>
+					<Button
+						variant="outline"
+						size="icon-sm"
+						onClick={() =>
+							updateConfig({
+								borderRadius: DEFAULT_CONFIG.borderRadius,
+								dotBorderRadius: DEFAULT_CONFIG.dotBorderRadius,
+								gap: DEFAULT_CONFIG.gap,
+							})
+						}
+					>
+						<RotateCcwIcon />
+					</Button>
+				</div>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* border radius */}
 					<div className="space-y-2">
@@ -196,7 +228,18 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 
 			{/* color controls */}
 			<div className="space-y-4 border-t p-4">
-				<h4 className="text-muted-foreground text-sm font-medium">Colors</h4>
+				<div className="flex items-center justify-between">
+					<h4 className="text-muted-foreground text-sm font-medium">Colors</h4>
+					<Button
+						variant="outline"
+						size="icon-sm"
+						onClick={() =>
+							updateConfig({ brightness: DEFAULT_CONFIG.brightness, saturation: DEFAULT_CONFIG.saturation })
+						}
+					>
+						<RotateCcwIcon />
+					</Button>
+				</div>
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
 					{/* brightness */}
 					<div className="space-y-2">
