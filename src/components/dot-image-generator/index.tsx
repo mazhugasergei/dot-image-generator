@@ -100,7 +100,7 @@ export function DotImageGenerator(props: ComponentProps<"div">) {
 
 			{files.length > 0 && (
 				<>
-					<Preview src={imageUrls[0]} config={config} />
+					<Preview src={imageUrls[0]} config={config} updateConfig={updateConfig} />
 
 					<DownloadButton onDownload={handleDownload} disabled={!imageUrls[0]} className="w-full" />
 

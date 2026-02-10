@@ -36,6 +36,51 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 				)}
 			</div>
 
+			{/* transformation controls */}
+			<div className="space-y-4 border-t p-4">
+				<h4 className="text-muted-foreground text-sm font-medium">Transform</h4>
+				<div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+					{/* zoom */}
+					<div className="space-y-2">
+						<Slider
+							id="zoom"
+							label="Zoom"
+							min={0.5}
+							max={3}
+							step={0.1}
+							value={[config.zoom]}
+							onValueChange={(value) => updateConfig({ zoom: value[0] ?? 1 })}
+						/>
+					</div>
+
+					{/* rotation */}
+					<div className="space-y-2">
+						<Slider
+							id="rotation"
+							label="Rotation"
+							min={-180}
+							max={180}
+							step={1}
+							value={[config.rotation]}
+							onValueChange={(value) => updateConfig({ rotation: value[0] ?? 0 })}
+						/>
+					</div>
+
+					{/* reset transform */}
+					<div className="space-y-2">
+						<Label>Reset</Label>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => updateConfig({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 })}
+							className="w-full"
+						>
+							Reset
+						</Button>
+					</div>
+				</div>
+			</div>
+
 			{/* layout controls */}
 			<div className="space-y-4 border-t p-4">
 				<h4 className="text-muted-foreground text-sm font-medium">Layout</h4>
