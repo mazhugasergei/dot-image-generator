@@ -15,27 +15,22 @@ export interface Props extends ComponentProps<"div"> {
 	config: PreviewConfig
 	updateConfig: (value: Partial<PreviewConfig>) => void
 	maxBorderRadius: number
-	onReset?: () => void
 }
 
-export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset, className, ...props }: Props) {
+export function ConfigControls({ config, updateConfig, maxBorderRadius, className, ...props }: Props) {
 	const lastValues = useRef({ cols: config.cols, rows: config.rows })
 
 	const handleReset = () => {
-		Object.entries(DEFAULT_CONFIG).forEach(([key, value]) => updateConfig({ [key]: value }))
-		lastValues.current = { cols: DEFAULT_CONFIG.cols, rows: DEFAULT_CONFIG.rows }
-		onReset?.()
+		updateConfig(DEFAULT_CONFIG)
 	}
 
 	return (
 		<div className={cn("w-full", className)} {...props}>
 			<div className="flex items-center justify-between p-4">
 				<h3 className="text-lg font-medium">Configuration</h3>
-				{onReset && (
-					<Button variant="outline" size="icon-sm" onClick={handleReset}>
-						<RotateCcwIcon />
-					</Button>
-				)}
+				<Button variant="outline" size="icon-sm" onClick={handleReset}>
+					<RotateCcwIcon />
+				</Button>
 			</div>
 
 			{/* transformation controls */}
@@ -287,24 +282,47 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 						/>
 					</div>
 
-					{/* background color */}
+					{/* bg toggle */}
 					<div className="space-y-2">
-						<Label htmlFor="backgroundColor">Background</Label>
+						<Label htmlFor="backgroundToggle">Background</Label>
+						<Select
+							value={config.backgroundEnabled ? "enabled" : "disabled"}
+							onValueChange={(value) =>
+								updateConfig({
+									backgroundEnabled: value === "enabled",
+								})
+							}
+						>
+							<SelectTrigger size="sm" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="enabled">Enabled</SelectItem>
+								<SelectItem value="disabled">Disabled</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+
+					{/* bg color */}
+					<div className="space-y-2">
+						<Label htmlFor="backgroundColor">BG color</Label>
 						<ColorPicker
 							id="backgroundColor"
 							value={config.backgroundColor}
 							onValueChange={(value) => updateConfig({ backgroundColor: value })}
+							disabled={!config.backgroundEnabled}
 						/>
 					</div>
 
-					{/* background roundness */}
+					{/* bg roundness */}
 					<div className="space-y-2">
 						<Label htmlFor="backgroundRoundness">BG round</Label>
 						<Select
 							value={config.backgroundRoundness}
 							onValueChange={(value) => updateConfig({ backgroundRoundness: value as "none" | "inherit" })}
+							disabled={!config.backgroundEnabled}
 						>
-							<SelectTrigger size="sm">
+							<SelectTrigger size="sm" className="w-full">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>

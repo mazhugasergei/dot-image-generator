@@ -72,8 +72,6 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 		setConfig(res)
 	}
 
-	const handleReset = () => setConfig(DEFAULT_CONFIG)
-
 	return (
 		<div
 			className={cn(
@@ -104,7 +102,6 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 						config={config}
 						updateConfig={updateConfig}
 						maxBorderRadius={maxBorderRadius}
-						onReset={handleReset}
 						className="rounded-lg border"
 					/>
 				)}
