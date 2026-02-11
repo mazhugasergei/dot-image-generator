@@ -17,19 +17,23 @@ interface Props extends ComponentProps<"div"> {
 export function Preview({
 	src,
 	config: {
+		crop,
+		zoom,
+		rotation,
+
 		cols,
 		rows,
 		borderRadius,
 		dotBorderRadius,
 		gap,
+
 		brightness,
 		saturation,
 		contrast,
+
+		backgroundEnabled,
 		backgroundColor,
 		backgroundRoundness,
-		crop,
-		zoom,
-		rotation,
 	},
 	updateConfig,
 	className,
@@ -501,7 +505,8 @@ export function Preview({
 				onTouchEnd={handleTouchEnd}
 				className={cn("cursor-grab", isDragging && "cursor-grabbing")}
 			>
-				{backgroundColor &&
+				{backgroundEnabled &&
+					maxBorderRadius > 0 &&
 					(() => {
 						const { color, opacity } = parseColorAndOpacity(backgroundColor)
 						const hexColor = toHex(color)

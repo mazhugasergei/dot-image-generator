@@ -13,6 +13,7 @@ export interface PreviewConfig {
 	brightness: number
 	saturation: number
 	contrast: number
+	backgroundEnabled: boolean
 	backgroundColor: string
 	backgroundRoundness: "none" | "inherit"
 }
