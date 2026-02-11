@@ -60,13 +60,13 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 		return () => urls.forEach((url) => URL.revokeObjectURL(url))
 	}, [files])
 
-	const updateConfig = (value: Partial<PreviewConfig>) => {
+	function updateConfig(value: Partial<PreviewConfig>) {
 		let res = { ...config, ...value }
 
 		// apply aspect ratio logic if cols or rows change and ratio is locked
-		if (config.ratio && (value.cols || value.rows)) {
-			if (value.cols) res.rows = Math.max(1, Math.round(value.cols / config.ratio))
-			else if (value.rows) res.cols = Math.max(1, Math.round(value.rows * config.ratio))
+		if (res.ratio && (value.cols || value.rows)) {
+			if (value.cols) res.rows = Math.max(1, Math.round(value.cols / res.ratio))
+			else if (value.rows) res.cols = Math.max(1, Math.round(value.rows * res.ratio))
 		}
 
 		setConfig(res)
