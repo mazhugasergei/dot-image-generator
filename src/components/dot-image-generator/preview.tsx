@@ -24,6 +24,7 @@ export function Preview({
 		gap,
 		brightness,
 		saturation,
+		contrast,
 		crop,
 		zoom,
 		rotation,
@@ -449,8 +450,15 @@ export function Preview({
 					const avgG = g / count
 					const avgB = b / count
 
-					// apply brightness and saturation adjustments
-					const [adjustedR, adjustedG, adjustedB] = applyColorAdjustments(avgR, avgG, avgB, brightness, saturation)
+					// apply brightness, saturation, and contrast adjustments
+					const [adjustedR, adjustedG, adjustedB] = applyColorAdjustments(
+						avgR,
+						avgG,
+						avgB,
+						brightness,
+						saturation,
+						contrast
+					)
 
 					rowColors.push(`rgb(${adjustedR},${adjustedG},${adjustedB})`)
 				}
@@ -459,7 +467,21 @@ export function Preview({
 
 			setColors(cellColors)
 		}
-	}, [src, cols, rows, spacing, DOT_SIZE, dotGridWidth, dotGridHeight, brightness, saturation, crop, zoom, rotation])
+	}, [
+		src,
+		cols,
+		rows,
+		spacing,
+		DOT_SIZE,
+		dotGridWidth,
+		dotGridHeight,
+		brightness,
+		saturation,
+		contrast,
+		crop,
+		zoom,
+		rotation,
+	])
 
 	return (
 		<div data-preview-container ref={containerRef} className={cn("w-full", className)} {...props}>

@@ -235,7 +235,11 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 						variant="outline"
 						size="icon-sm"
 						onClick={() =>
-							updateConfig({ brightness: DEFAULT_CONFIG.brightness, saturation: DEFAULT_CONFIG.saturation })
+							updateConfig({
+								brightness: DEFAULT_CONFIG.brightness,
+								saturation: DEFAULT_CONFIG.saturation,
+								contrast: DEFAULT_CONFIG.contrast,
+							})
 						}
 					>
 						<RotateCcwIcon />
@@ -265,6 +269,19 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							step={1}
 							value={[config.saturation]}
 							onValueChange={(value) => updateConfig({ saturation: value[0] ?? 100 })}
+						/>
+					</div>
+
+					{/* contrast */}
+					<div className="space-y-2">
+						<Slider
+							id="contrast"
+							label="Contrast"
+							min={0}
+							max={MAX_CONFIG_VALUES.contrast}
+							step={1}
+							value={[config.contrast]}
+							onValueChange={(value) => updateConfig({ contrast: value[0] ?? 100 })}
 						/>
 					</div>
 

@@ -3,7 +3,8 @@ export function applyColorAdjustments(
 	g: number,
 	b: number,
 	brightness: number,
-	saturation: number
+	saturation: number,
+	contrast: number = 100
 ): [number, number, number] {
 	// apply brightness (0-200%)
 	const brightnessFactor = brightness / 100
@@ -17,6 +18,13 @@ export function applyColorAdjustments(
 	r = Math.min(255, Math.max(0, gray + saturationFactor * (r - gray)))
 	g = Math.min(255, Math.max(0, gray + saturationFactor * (g - gray)))
 	b = Math.min(255, Math.max(0, gray + saturationFactor * (b - gray)))
+
+	// apply contrast (0-200%)
+	const contrastFactor = (contrast - 100) / 100
+	const factor = (259 * (contrastFactor * 255 + 255)) / (255 * (259 - contrastFactor * 255))
+	r = Math.min(255, Math.max(0, factor * (r - 128) + 128))
+	g = Math.min(255, Math.max(0, factor * (g - 128) + 128))
+	b = Math.min(255, Math.max(0, factor * (b - 128) + 128))
 
 	return [Math.round(r), Math.round(g), Math.round(b)]
 }

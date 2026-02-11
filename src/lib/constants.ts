@@ -16,6 +16,7 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 
 	brightness: 100,
 	saturation: 100,
+	contrast: 100,
 
 	backgroundColor: "#000000",
 }
@@ -33,4 +34,5 @@ export const MAX_CONFIG_VALUES: Omit<PreviewConfig, "ratio" | "backgroundColor">
 
 	brightness: 200,
 	saturation: 200,
+	contrast: 200,
 } as const
