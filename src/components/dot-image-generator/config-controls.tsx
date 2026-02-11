@@ -4,6 +4,7 @@ import { ColorPicker } from "@/components/color-picker"
 import { Slider } from "@/components/slider"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DEFAULT_CONFIG, MAX_CONFIG_VALUES } from "@/lib/constants"
 import type { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
@@ -239,6 +240,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 								brightness: DEFAULT_CONFIG.brightness,
 								saturation: DEFAULT_CONFIG.saturation,
 								contrast: DEFAULT_CONFIG.contrast,
+								backgroundRoundness: DEFAULT_CONFIG.backgroundRoundness,
 							})
 						}
 					>
@@ -293,6 +295,23 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, onReset,
 							value={config.backgroundColor}
 							onValueChange={(value) => updateConfig({ backgroundColor: value })}
 						/>
+					</div>
+
+					{/* background roundness */}
+					<div className="space-y-2">
+						<Label htmlFor="backgroundRoundness">BG round</Label>
+						<Select
+							value={config.backgroundRoundness}
+							onValueChange={(value) => updateConfig({ backgroundRoundness: value as "none" | "inherit" })}
+						>
+							<SelectTrigger size="sm">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="none">None</SelectItem>
+								<SelectItem value="inherit">Inherit</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 				</div>
 			</div>

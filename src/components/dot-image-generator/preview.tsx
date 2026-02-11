@@ -25,10 +25,11 @@ export function Preview({
 		brightness,
 		saturation,
 		contrast,
+		backgroundColor,
+		backgroundRoundness,
 		crop,
 		zoom,
 		rotation,
-		backgroundColor,
 	},
 	updateConfig,
 	className,
@@ -478,6 +479,8 @@ export function Preview({
 		brightness,
 		saturation,
 		contrast,
+		backgroundColor,
+		backgroundRoundness,
 		crop,
 		zoom,
 		rotation,
@@ -500,9 +503,23 @@ export function Preview({
 			>
 				{backgroundColor &&
 					(() => {
-						const { opacity } = parseColorAndOpacity(backgroundColor)
-						const hexColor = toHex(backgroundColor)
-						return <rect x={0} y={0} width={dotGridWidth} height={dotGridHeight} fill={hexColor} opacity={opacity} />
+						const { color, opacity } = parseColorAndOpacity(backgroundColor)
+						const hexColor = toHex(color)
+						return (
+							<rect
+								x={0}
+								y={0}
+								width={dotGridWidth}
+								height={dotGridHeight}
+								fill={hexColor}
+								opacity={opacity}
+								rx={
+									backgroundRoundness === "inherit"
+										? ((containerBorderRadius / maxBorderRadius) * Math.min(dotGridWidth, dotGridHeight)) / 2
+										: 0
+								}
+							/>
+						)
 					})()}
 				{visibleCells.map(({ row, col }) => {
 					const color = colors[row]?.[col] || "#000"

@@ -14,4 +14,5 @@ export interface PreviewConfig {
 	saturation: number
 	contrast: number
 	backgroundColor: string
+	backgroundRoundness: "none" | "inherit"
 }

@@ -19,9 +19,10 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 	contrast: 100,
 
 	backgroundColor: "#000000",
+	backgroundRoundness: "none",
 }
 
-export const MAX_CONFIG_VALUES: Omit<PreviewConfig, "ratio" | "backgroundColor"> = {
+export const MAX_CONFIG_VALUES: Omit<PreviewConfig, "ratio" | "backgroundColor" | "backgroundRoundness"> = {
 	crop: { x: 0, y: 0 },
 	zoom: 0,
 	rotation: 0,
