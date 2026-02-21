@@ -81,7 +81,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 			)}
 			{...props}
 		>
-			{files.length > 0 && (
+			{files.length > 0 && imageUrls.length > 0 && (
 				<div className="space-y-6">
 					<Preview
 						src={imageUrls[0]}
