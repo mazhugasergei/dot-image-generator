@@ -1,4 +1,4 @@
-import { DOT_SIZE } from "@/lib/constants"
+import { DOT_SIZE, MAX_CONFIG_VALUES, MIN_CONFIG_VALUES } from "@/lib/constants"
 import { PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { applyColorAdjustments, parseColorAndOpacity, toHex } from "@/utils/colors"
@@ -160,12 +160,11 @@ export function Preview({
 			const rotatedWidth = scaledWidth * absCosRotation + scaledHeight * absSinRotation
 			const rotatedHeight = scaledWidth * absSinRotation + scaledHeight * absCosRotation
 
-			// calculate drag limits as ±90% of transformed image dimensions
-			// convert to percentage of canvas size
-			const maxNegativeX = ((-rotatedWidth * 0.9) / dotGridWidth) * 100
-			const maxPositiveX = ((rotatedWidth * 0.9) / dotGridWidth) * 100
-			const maxNegativeY = ((-rotatedHeight * 0.9) / dotGridHeight) * 100
-			const maxPositiveY = ((rotatedHeight * 0.9) / dotGridHeight) * 100
+			// calculate drag limits using constants
+			const maxNegativeX = MIN_CONFIG_VALUES.crop.x
+			const maxPositiveX = MAX_CONFIG_VALUES.crop.x
+			const maxNegativeY = MIN_CONFIG_VALUES.crop.y
+			const maxPositiveY = MAX_CONFIG_VALUES.crop.y
 
 			// update crop position with adjusted drag distance and limits
 			const newCropX = Math.max(maxNegativeX, Math.min(maxPositiveX, crop.x + (adjustedDragX / dotGridWidth) * 100))
@@ -202,7 +201,7 @@ export function Preview({
 
 			// handle zoom
 			const zoomDelta = distance / lastDistanceRef.current
-			const newZoom = Math.max(0.5, Math.min(3, zoom * zoomDelta))
+			const newZoom = Math.max(MIN_CONFIG_VALUES.zoom, Math.min(MAX_CONFIG_VALUES.zoom, zoom * zoomDelta))
 			updateConfig({ zoom: newZoom })
 
 			// handle rotation
@@ -299,7 +298,7 @@ export function Preview({
 
 			// calculate zoom delta
 			const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1
-			const newZoom = Math.max(0.5, Math.min(3, zoom * zoomDelta))
+			const newZoom = Math.max(MIN_CONFIG_VALUES.zoom, Math.min(MAX_CONFIG_VALUES.zoom, zoom * zoomDelta))
 
 			// calculate the offset needed to keep pointer position fixed
 			// for center-based transforms, we need to calculate the offset differently
@@ -317,8 +316,14 @@ export function Preview({
 			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
 
 			// apply the offset to current crop position
-			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / dotGridWidth) * 100))
-			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / dotGridHeight) * 100))
+			const newCropX = Math.max(
+				MIN_CONFIG_VALUES.crop.x,
+				Math.min(MAX_CONFIG_VALUES.crop.x, crop.x - (cropOffsetX / dotGridWidth) * 100)
+			)
+			const newCropY = Math.max(
+				MIN_CONFIG_VALUES.crop.y,
+				Math.min(MAX_CONFIG_VALUES.crop.y, crop.y - (cropOffsetY / dotGridHeight) * 100)
+			)
 
 			updateConfig({ zoom: newZoom, crop: { x: newCropX, y: newCropY } })
 		},
@@ -345,7 +350,7 @@ export function Preview({
 
 			// calculate zoom delta
 			const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1
-			const newZoom = Math.max(0.5, Math.min(3, zoom * zoomDelta))
+			const newZoom = Math.max(MIN_CONFIG_VALUES.zoom, Math.min(MAX_CONFIG_VALUES.zoom, zoom * zoomDelta))
 
 			// calculate the offset needed to keep pointer position fixed
 			// for center-based transforms, we need to calculate the offset differently
@@ -363,8 +368,14 @@ export function Preview({
 			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
 
 			// apply the offset to current crop position
-			const newCropX = Math.max(-50, Math.min(50, crop.x - (cropOffsetX / dotGridWidth) * 100))
-			const newCropY = Math.max(-50, Math.min(50, crop.y - (cropOffsetY / dotGridHeight) * 100))
+			const newCropX = Math.max(
+				MAX_CONFIG_VALUES.crop.x,
+				Math.min(MAX_CONFIG_VALUES.crop.x, crop.x - (cropOffsetX / dotGridWidth) * 100)
+			)
+			const newCropY = Math.max(
+				MAX_CONFIG_VALUES.crop.y,
+				Math.min(MAX_CONFIG_VALUES.crop.y, crop.y - (cropOffsetY / dotGridHeight) * 100)
+			)
 
 			updateConfig({ zoom: newZoom, crop: { x: newCropX, y: newCropY } })
 		}

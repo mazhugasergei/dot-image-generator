@@ -102,7 +102,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 						config={config}
 						updateConfig={updateConfig}
 						maxBorderRadius={maxBorderRadius}
-						className="rounded-lg border"
+						className="overflow-hidden rounded-sm border"
 					/>
 				)}
 			</div>

@@ -23,13 +23,32 @@ export const DEFAULT_CONFIG: PreviewConfig = {
 	backgroundRoundness: "inherit",
 }
 
+export const MIN_CONFIG_VALUES: Omit<
+	PreviewConfig,
+	"ratio" | "backgroundEnabled" | "backgroundColor" | "backgroundRoundness"
+> = {
+	crop: { x: -100, y: -100 },
+	zoom: 0.5,
+	rotation: -180,
+
+	cols: 1,
+	rows: 1,
+	borderRadius: 0,
+	dotBorderRadius: 0,
+	gap: 0,
+
+	brightness: 0,
+	saturation: 0,
+	contrast: 0,
+} as const
+
 export const MAX_CONFIG_VALUES: Omit<
 	PreviewConfig,
 	"ratio" | "backgroundEnabled" | "backgroundColor" | "backgroundRoundness"
 > = {
-	crop: { x: 0, y: 0 },
-	zoom: 0,
-	rotation: 0,
+	crop: { x: 100, y: 100 },
+	zoom: 3,
+	rotation: 360,
 
 	cols: 80,
 	rows: 80,
