@@ -25,11 +25,17 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 		if (previewElement) {
 			const rect = previewElement.getBoundingClientRect()
 			setPreviewDimensions({ width: rect.width, height: rect.height })
+		} else {
+			// container not ready yet, retry after a short delay
+			setTimeout(measurePreview, 50)
 		}
 	}
 
 	// measure preview element dimensions and recalculate maxBorderRadius
 	useEffect(() => {
+		// only measure when both files and imageUrls are available
+		if (files.length === 0 || imageUrls.length === 0) return
+
 		// initial measurement
 		measurePreview()
 
@@ -46,7 +52,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 				resizeObserver.disconnect()
 			}
 		}
-	}, [files])
+	}, [files, imageUrls])
 
 	// create urls for image previews
 	useEffect(() => {
