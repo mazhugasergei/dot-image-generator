@@ -1,7 +1,6 @@
 "use client"
 
 import { ConfigControls } from "@/components/dot-image-generator/config-controls"
-import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { FileUpload } from "@/components/dot-image-generator/file-upload"
 import { Preview } from "@/components/dot-image-generator/preview"
 import { DEFAULT_CONFIG } from "@/lib/constants"
@@ -82,25 +81,20 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 		<div
 			className={cn(
 				"grid w-full items-center gap-10 max-lg:max-w-md",
-				files.length > 0 ? "lg:grid-cols-[2fr_1fr] xl:grid-cols-[1fr_2fr_1fr]" : "max-w-lg",
+				files.length > 0 ? "lg:grid-cols-2" : "max-w-lg",
 				className
 			)}
 			{...props}
 		>
-			<div className="max-xl:hidden" />
-
 			{files.length > 0 && imageUrls.length > 0 && (
-				<div className="space-y-6">
-					<Preview
-						src={imageUrls[0]}
-						config={config}
-						updateConfig={updateConfig}
-						maxBorderRadius={maxBorderRadius}
-						containerWidth={totalWidth}
-						containerHeight={totalHeight}
-					/>
-					<DownloadButton />
-				</div>
+				<Preview
+					src={imageUrls[0]}
+					config={config}
+					updateConfig={updateConfig}
+					maxBorderRadius={maxBorderRadius}
+					containerWidth={totalWidth}
+					containerHeight={totalHeight}
+				/>
 			)}
 
 			<div className="space-y-6">

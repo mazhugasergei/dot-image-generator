@@ -13,16 +13,15 @@ interface CustomSliderProps {
 
 export function Slider({ id, label, value, min, max, step, onValueChange, onValueCommit }: CustomSliderProps) {
 	return (
-		<div className="flex w-full flex-col gap-2.5">
-			<label htmlFor={id} className="text-sm font-medium">
+		<div className="relative isolate flex w-full flex-col gap-2.5">
+			<label
+				htmlFor={id}
+				className="text-secondary-foreground pointer-events-none absolute top-1/2 right-3 left-3 z-1 -translate-y-1/2 text-sm font-medium"
+			>
 				{label.split(":").map((part, index) => (
-					<span key={index}>
-						{part}
-						{index === 0 && ": "}
-						<span className="text-muted-foreground">
-							{value[0]?.toFixed(step < 1 ? 1 : step >= 1 ? 0 : 2)}
-							{label.includes("°") ? "°" : label.includes("%") ? "%" : ""}
-						</span>
+					<span key={index} className="flex items-center justify-between gap-2">
+						<span>{part}</span>
+						<span>{value[0]?.toFixed(step < 1 ? 1 : step >= 1 ? 0 : 2)}</span>
 					</span>
 				))}
 			</label>

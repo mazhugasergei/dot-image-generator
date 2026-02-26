@@ -1,6 +1,7 @@
 "use client"
 
 import { ColorPicker } from "@/components/color-picker"
+import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { Slider } from "@/components/slider"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -12,26 +13,25 @@ import { LockIcon, LockOpenIcon, RotateCcwIcon } from "lucide-react"
 import { ComponentProps, useRef } from "react"
 
 interface SectionProps extends ComponentProps<"div"> {
-	title: string
-	onReset: () => void
+	title?: string
+	onReset?: () => void
 	children: React.ReactNode
 }
 
 function Section({ title, onReset, children, className, ...props }: SectionProps) {
 	return (
 		<div className={cn("relative space-y-4 border-white/5 p-4 pt-3 not-first:border-t", className)} {...props}>
-			<div className="flex items-center justify-between">
-				<h4 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">{title}</h4>
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={onReset}
-					className="text-muted-foreground absolute -top-0.25 -right-0.25 rounded-tl-none rounded-tr-none rounded-br-none border-0"
-				>
-					<RotateCcwIcon /> Reset
-				</Button>
-			</div>
-			<div className="space-y-4">{children}</div>
+			{title && (
+				<div className="flex items-center justify-between">
+					<h4 className="text-muted-foreground text-sm font-medium tracking-widest uppercase">{title}</h4>
+					{onReset && (
+						<Button variant="ghost" size="icon-xs" onClick={onReset}>
+							<RotateCcwIcon />
+						</Button>
+					)}
+				</div>
+			)}
+			<div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">{children}</div>
 		</div>
 	)
 }
@@ -159,7 +159,6 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 
 				{/* lock ratio */}
 				<div className="space-y-2">
-					<Label htmlFor="ratio">Lock ratio</Label>
 					<Button
 						id="ratio"
 						variant="outline"
@@ -170,12 +169,12 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 						{config.ratio ? (
 							<>
 								<LockIcon className="size-3" />
-								Locked
+								Ratio locked
 							</>
 						) : (
 							<>
 								<LockOpenIcon className="size-3" />
-								Unlocked
+								Ratio unlocked
 							</>
 						)}
 					</Button>
@@ -344,6 +343,10 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 						</SelectContent>
 					</Select>
 				</div>
+			</Section>
+
+			<Section>
+				<DownloadButton className="col-span-3" />
 			</Section>
 		</div>
 	)
