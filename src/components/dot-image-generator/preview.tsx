@@ -279,57 +279,6 @@ export function Preview({
 		handlePinchEnd()
 	}, [handleDragEnd, handlePinchEnd])
 
-	// wheel zoom
-	const handleWheel = useCallback(
-		(e: WheelEvent) => {
-			if (!updateConfig) return
-			e.preventDefault()
-
-			// get pointer position relative to SVG
-			const svg = containerRef.current?.querySelector("svg")
-			if (!svg) return
-
-			const svgRect = svg.getBoundingClientRect()
-			const viewBox = svg.getAttribute("viewBox")?.split(" ").map(Number) || [0, 0, dotGridWidth, dotGridHeight]
-
-			// calculate pointer position in canvas coordinates
-			const pointerX = ((e.clientX - svgRect.left) / svgRect.width) * viewBox[2]
-			const pointerY = ((e.clientY - svgRect.top) / svgRect.height) * viewBox[3]
-
-			// calculate zoom delta
-			const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1
-			const newZoom = Math.max(MIN_CONFIG_VALUES.zoom, Math.min(MAX_CONFIG_VALUES.zoom, zoom * zoomDelta))
-
-			// calculate the offset needed to keep pointer position fixed
-			// for center-based transforms, we need to calculate the offset differently
-			const centerOffsetX = pointerX - dotGridWidth / 2
-			const centerOffsetY = pointerY - dotGridHeight / 2
-
-			// calculate how much the offset changes with zoom
-			const zoomRatio = newZoom / zoom
-			const newCenterOffsetX = centerOffsetX * zoomRatio
-			const newCenterOffsetY = centerOffsetY * zoomRatio
-
-			// calculate the crop offset needed to keep pointer fixed
-			// the difference in center offsets determines how much we need to adjust crop
-			const cropOffsetX = (newCenterOffsetX - centerOffsetX) / zoom
-			const cropOffsetY = (newCenterOffsetY - centerOffsetY) / zoom
-
-			// apply the offset to current crop position
-			const newCropX = Math.max(
-				MIN_CONFIG_VALUES.crop.x,
-				Math.min(MAX_CONFIG_VALUES.crop.x, crop.x - (cropOffsetX / dotGridWidth) * 100)
-			)
-			const newCropY = Math.max(
-				MIN_CONFIG_VALUES.crop.y,
-				Math.min(MAX_CONFIG_VALUES.crop.y, crop.y - (cropOffsetY / dotGridHeight) * 100)
-			)
-
-			updateConfig({ zoom: newZoom, crop: { x: newCropX, y: newCropY } })
-		},
-		[updateConfig, zoom, crop, dotGridWidth, dotGridHeight]
-	)
-
 	useEffect(() => {
 		const container = containerRef.current
 		if (!container || !updateConfig) return
@@ -369,11 +318,11 @@ export function Preview({
 
 			// apply the offset to current crop position
 			const newCropX = Math.max(
-				MAX_CONFIG_VALUES.crop.x,
+				MIN_CONFIG_VALUES.crop.x,
 				Math.min(MAX_CONFIG_VALUES.crop.x, crop.x - (cropOffsetX / dotGridWidth) * 100)
 			)
 			const newCropY = Math.max(
-				MAX_CONFIG_VALUES.crop.y,
+				MIN_CONFIG_VALUES.crop.y,
 				Math.min(MAX_CONFIG_VALUES.crop.y, crop.y - (cropOffsetY / dotGridHeight) * 100)
 			)
 
