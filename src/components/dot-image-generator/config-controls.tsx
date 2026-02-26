@@ -21,7 +21,7 @@ function Section({ title, onReset, children, className, ...props }: SectionProps
 	return (
 		<div className={cn("relative space-y-4 border-white/5 p-4 pt-3 not-first:border-t", className)} {...props}>
 			<div className="flex items-center justify-between">
-				<h4 className="text-muted-foreground text-sm font-medium">{title}</h4>
+				<h4 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">{title}</h4>
 				<Button
 					variant="outline"
 					size="sm"
