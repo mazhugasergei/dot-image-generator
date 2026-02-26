@@ -20,7 +20,7 @@ interface SectionProps extends ComponentProps<"div"> {
 
 function Section({ title, onReset, children, className, ...props }: SectionProps) {
 	return (
-		<div className={cn("relative space-y-4 border-white/5 p-4 pt-3 not-first:border-t", className)} {...props}>
+		<section className={cn("relative space-y-4 border-white/5 p-4 pt-3 not-first:border-t", className)} {...props}>
 			{title && (
 				<div className="flex items-center justify-between">
 					<h4 className="text-muted-foreground text-sm font-medium tracking-widest uppercase">{title}</h4>
@@ -32,7 +32,7 @@ function Section({ title, onReset, children, className, ...props }: SectionProps
 				</div>
 			)}
 			<div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">{children}</div>
-		</div>
+		</section>
 	)
 }
 
@@ -46,7 +46,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 	const lastValues = useRef({ cols: config.cols, rows: config.rows })
 
 	return (
-		<div className={cn("w-full", className)} {...props}>
+		<div className={cn("bg-sidebar w-full rounded-lg", className)} {...props}>
 			{/* transformation controls */}
 			<Section title="Transform" onReset={() => updateConfig({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 })}>
 				{/* position X */}
@@ -345,9 +345,9 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				</div>
 			</Section>
 
-			<Section>
-				<DownloadButton className="col-span-3" />
-			</Section>
+			<section className="border-t border-white/5 p-4">
+				<DownloadButton />
+			</section>
 		</div>
 	)
 }

@@ -100,12 +100,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 			<div className="space-y-6">
 				<FileUpload files={files} onFilesChange={setFiles} />
 				{files.length > 0 && (
-					<ConfigControls
-						config={config}
-						updateConfig={updateConfig}
-						maxBorderRadius={maxBorderRadius}
-						className="bg-sidebar overflow-hidden rounded-sm"
-					/>
+					<ConfigControls config={config} updateConfig={updateConfig} maxBorderRadius={maxBorderRadius} />
 				)}
 			</div>
 		</div>
