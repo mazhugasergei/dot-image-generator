@@ -19,19 +19,19 @@ interface SectionProps extends ComponentProps<"div"> {
 
 function Section({ title, onReset, children, className, ...props }: SectionProps) {
 	return (
-		<div className={cn("relative space-y-4 p-4 pt-3 not-first:border-t", className)} {...props}>
+		<div className={cn("relative space-y-4 border-white/5 p-4 pt-3 not-first:border-t", className)} {...props}>
 			<div className="flex items-center justify-between">
 				<h4 className="text-muted-foreground text-sm font-medium">{title}</h4>
 				<Button
 					variant="outline"
 					size="sm"
 					onClick={onReset}
-					className="border-border! text-muted-foreground absolute -top-0.25 -right-0.25 rounded-none bg-transparent!"
+					className="text-muted-foreground absolute -top-0.25 -right-0.25 rounded-tl-none rounded-tr-none rounded-br-none border-0"
 				>
 					<RotateCcwIcon /> Reset
 				</Button>
 			</div>
-			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">{children}</div>
+			<div className="space-y-4">{children}</div>
 		</div>
 	)
 }

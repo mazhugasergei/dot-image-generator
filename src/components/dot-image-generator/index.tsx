@@ -82,11 +82,13 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 		<div
 			className={cn(
 				"grid w-full items-center gap-10 max-lg:max-w-md",
-				files.length > 0 ? "lg:grid-cols-2" : "max-w-lg",
+				files.length > 0 ? "lg:grid-cols-[2fr_1fr] xl:grid-cols-[1fr_2fr_1fr]" : "max-w-lg",
 				className
 			)}
 			{...props}
 		>
+			<div className="max-xl:hidden" />
+
 			{files.length > 0 && imageUrls.length > 0 && (
 				<div className="space-y-6">
 					<Preview
@@ -108,7 +110,7 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 						config={config}
 						updateConfig={updateConfig}
 						maxBorderRadius={maxBorderRadius}
-						className="overflow-hidden rounded-sm border"
+						className="bg-sidebar overflow-hidden rounded-sm"
 					/>
 				)}
 			</div>
