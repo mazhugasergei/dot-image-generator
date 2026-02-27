@@ -1,7 +1,6 @@
 "use client"
 
 import { ColorPicker } from "@/components/color-picker"
-import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { Slider } from "@/components/slider"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -25,7 +24,7 @@ function Section({ title, onReset, children, className, ...props }: SectionProps
 				<div className="flex items-center justify-between">
 					<h4 className="text-muted-foreground text-sm font-medium tracking-widest uppercase">{title}</h4>
 					{onReset && (
-						<Button variant="ghost" size="icon-xs" onClick={onReset}>
+						<Button variant="ghost" size="icon-sm" onClick={onReset}>
 							<RotateCcwIcon />
 						</Button>
 					)}
@@ -344,10 +343,6 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 					</Select>
 				</div>
 			</Section>
-
-			<section className="border-t border-white/5 p-4">
-				<DownloadButton />
-			</section>
 		</div>
 	)
 }

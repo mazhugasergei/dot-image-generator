@@ -1,6 +1,7 @@
 "use client"
 
 import { ConfigControls } from "@/components/dot-image-generator/config-controls"
+import { DownloadButton } from "@/components/dot-image-generator/download-button"
 import { FileUpload } from "@/components/dot-image-generator/file-upload"
 import { Preview } from "@/components/dot-image-generator/preview"
 import { DEFAULT_CONFIG } from "@/lib/constants"
@@ -87,14 +88,17 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 			{...props}
 		>
 			{files.length > 0 && imageUrls.length > 0 && (
-				<Preview
-					src={imageUrls[0]}
-					config={config}
-					updateConfig={updateConfig}
-					maxBorderRadius={maxBorderRadius}
-					containerWidth={totalWidth}
-					containerHeight={totalHeight}
-				/>
+				<div className="space-y-6">
+					<Preview
+						src={imageUrls[0]}
+						config={config}
+						updateConfig={updateConfig}
+						maxBorderRadius={maxBorderRadius}
+						containerWidth={totalWidth}
+						containerHeight={totalHeight}
+					/>
+					<DownloadButton />
+				</div>
 			)}
 
 			<div className="space-y-6">
