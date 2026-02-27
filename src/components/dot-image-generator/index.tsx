@@ -104,7 +104,12 @@ export function DotImageGenerator({ className, ...props }: ComponentProps<"div">
 			<div className="space-y-6">
 				<FileUpload files={files} onFilesChange={setFiles} />
 				{files.length > 0 && (
-					<ConfigControls config={config} updateConfig={updateConfig} maxBorderRadius={maxBorderRadius} />
+					<ConfigControls
+						config={config}
+						updateConfig={updateConfig}
+						maxBorderRadius={maxBorderRadius}
+						// variant="secondary"
+					/>
 				)}
 			</div>
 		</div>

@@ -1,3 +1,5 @@
+export type ConfigVariant = "default" | "secondary"
+
 export interface PreviewConfig {
 	crop: { x: number; y: number }
 	zoom: number

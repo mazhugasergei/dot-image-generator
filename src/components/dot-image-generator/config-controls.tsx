@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DEFAULT_CONFIG, MAX_CONFIG_VALUES, MIN_CONFIG_VALUES } from "@/lib/constants"
-import type { PreviewConfig } from "@/types/config"
+import type { ConfigVariant, PreviewConfig } from "@/types/config"
 import { cn } from "@/utils"
 import { LockIcon, LockOpenIcon, RotateCcwIcon } from "lucide-react"
 import { ComponentProps, useRef } from "react"
@@ -14,12 +14,20 @@ import { ComponentProps, useRef } from "react"
 interface SectionProps extends ComponentProps<"div"> {
 	title?: string
 	onReset?: () => void
+	variant?: ConfigVariant
 	children: React.ReactNode
 }
 
-function Section({ title, onReset, children, className, ...props }: SectionProps) {
+function Section({ title, onReset, children, variant = "default", className, ...props }: SectionProps) {
 	return (
-		<section className={cn("relative space-y-4 border-white/5 p-4 pt-3 not-first:border-t", className)} {...props}>
+		<section
+			className={cn(
+				"relative space-y-4 p-4 pt-3 not-first:border-t",
+				variant === "secondary" && "border-white/5",
+				className
+			)}
+			{...props}
+		>
 			{title && (
 				<div className="flex items-center justify-between">
 					<h4 className="text-muted-foreground text-sm font-medium tracking-widest uppercase">{title}</h4>
@@ -39,18 +47,27 @@ export interface Props extends ComponentProps<"div"> {
 	config: PreviewConfig
 	updateConfig: (value: Partial<PreviewConfig>) => void
 	maxBorderRadius: number
+	variant?: ConfigVariant
 }
 
-export function ConfigControls({ config, updateConfig, maxBorderRadius, className, ...props }: Props) {
+export function ConfigControls({
+	config,
+	updateConfig,
+	maxBorderRadius,
+	variant = "default",
+	className,
+	...props
+}: Props) {
 	const lastValues = useRef({ cols: config.cols, rows: config.rows })
 
 	return (
-		<div className={cn("bg-sidebar w-full rounded-lg", className)} {...props}>
+		<div className={cn("w-full rounded-lg", variant === "secondary" ? "bg-sidebar" : "border", className)} {...props}>
 			{/* transformation controls */}
 			<Section title="Transform" onReset={() => updateConfig({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 })}>
 				{/* position X */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="positionX"
 						label="Position X"
 						min={MIN_CONFIG_VALUES.crop.x}
@@ -64,6 +81,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* position Y */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="positionY"
 						label="Position Y"
 						min={MIN_CONFIG_VALUES.crop.y}
@@ -77,6 +95,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* zoom */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="zoom"
 						label="Zoom"
 						min={MIN_CONFIG_VALUES.zoom}
@@ -90,6 +109,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* rotation */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="rotation"
 						label="Rotation"
 						min={MIN_CONFIG_VALUES.rotation}
@@ -111,6 +131,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* columns */}
 				<div className="flex w-full flex-col gap-2.5">
 					<Slider
+						variant={variant}
 						id="cols"
 						label="Columns"
 						min={MIN_CONFIG_VALUES.cols}
@@ -135,6 +156,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* rows */}
 				<div className="flex w-full flex-col gap-2.5">
 					<Slider
+						variant={variant}
 						id="rows"
 						label="Rows"
 						min={MIN_CONFIG_VALUES.rows}
@@ -194,6 +216,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* border radius */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="borderRadius"
 						label="Image round"
 						min={MIN_CONFIG_VALUES.borderRadius}
@@ -207,6 +230,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* dot border radius */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="dotBorderRadius"
 						label="Dot round"
 						min={MIN_CONFIG_VALUES.dotBorderRadius}
@@ -220,6 +244,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* gap */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="gap"
 						label="Dot gap"
 						min={MIN_CONFIG_VALUES.gap}
@@ -245,6 +270,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* brightness */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="brightness"
 						label="Brightness"
 						min={MIN_CONFIG_VALUES.brightness}
@@ -258,6 +284,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* saturation */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="saturation"
 						label="Saturation"
 						min={MIN_CONFIG_VALUES.saturation}
@@ -271,6 +298,7 @@ export function ConfigControls({ config, updateConfig, maxBorderRadius, classNam
 				{/* contrast */}
 				<div className="space-y-2">
 					<Slider
+						variant={variant}
 						id="contrast"
 						label="Contrast"
 						min={MIN_CONFIG_VALUES.contrast}

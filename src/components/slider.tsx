@@ -1,4 +1,5 @@
 import { Slider as SliderComponent } from "@/components/ui/slider"
+import { ConfigVariant } from "@/types/config"
 
 interface CustomSliderProps {
 	id: string
@@ -9,9 +10,20 @@ interface CustomSliderProps {
 	step: number
 	onValueChange: (value: number[]) => void
 	onValueCommit?: (value: number[]) => void
+	variant?: ConfigVariant
 }
 
-export function Slider({ id, label, value, min, max, step, onValueChange, onValueCommit }: CustomSliderProps) {
+export function Slider({
+	id,
+	label,
+	value,
+	min,
+	max,
+	step,
+	onValueChange,
+	onValueCommit,
+	variant = "default",
+}: CustomSliderProps) {
 	return (
 		<div className="relative isolate flex w-full flex-col gap-2.5">
 			<label
@@ -34,7 +46,7 @@ export function Slider({ id, label, value, min, max, step, onValueChange, onValu
 					min={min}
 					max={max}
 					step={step}
-					className="flex-1"
+					variant={variant}
 				/>
 			</div>
 		</div>
